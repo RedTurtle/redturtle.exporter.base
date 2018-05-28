@@ -20,9 +20,6 @@ class RedturtleExporterBaseLayer(PloneSandboxLayer):
         # layer.
         self.loadZCML(package=redturtle.exporter.base)
 
-    def setUpPloneSite(self, portal):
-        applyProfile(portal, 'redturtle.exporter.base:default')
-
 
 REDTURTLE_EXPORTER_BASE_FIXTURE = RedturtleExporterBaseLayer()
 
