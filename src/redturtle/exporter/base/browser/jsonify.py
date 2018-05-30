@@ -218,7 +218,8 @@ class GetItemTopic(BaseGetItemView, GetPortletsData):
                     if not any([True for x in values if isinstance(x, DateTime)]):  # noqa
                         continue
                 except Exception:
-                    import pdb; pdb.set_trace()
+                    import pdb
+                    pdb.set_trace()
 
                 new_values = []
 

@@ -3,13 +3,10 @@ from Acquisition import aq_base
 from plone import api
 from ploneorg.jsonify.wrapper import Wrapper as BaseWrapper
 from Products.CMFCore.utils import getToolByName
+from redturtle.exporter.base import logger
 
 import DateTime
-import logging
 import os
-
-
-logger = logging.getLogger('rer.plone5.export')
 
 
 class Wrapper(BaseWrapper):
@@ -23,7 +20,7 @@ class Wrapper(BaseWrapper):
         self.portal = api.portal.get()
         self.portal_path = '/'.join(self.portal.getPhysicalPath())
         self.portal_utils = api.portal.get_tool(name='plone_utils')
-        self.charset = self.portal.portal_properties.site_properties.default_charset  # noqa
+        self.charset = getattr(self.portal.portal_properties.site_properties, 'default_charset', None)  # noqa
         if not self.charset:
             # never seen it missing ... but users can change it
             self.charset = 'utf-8'
