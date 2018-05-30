@@ -179,6 +179,7 @@ class GetItemDocument(BaseGetItemView, GetPortletsData):
         """
         Document
         """
+        import pdb; pdb.set_trace()
         try:
             context_dict = Wrapper(self.context)
             context_dict.update({

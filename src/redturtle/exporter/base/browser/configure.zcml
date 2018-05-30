@@ -5,13 +5,13 @@
     i18n_domain="redturtle.exporter.base">
 
   <!-- Views for base contents -->
-  <browser:page
+  <!-- <browser:page
       for="*"
       name="get_item"
       class=".jsonify.GetItem"
       permission="zope2.ViewManagementScreens"
       layer="redturtle.exporter.base.interfaces.IRedTurtleExporterBaseLayer"
-      />
+      /> -->
 
   <browser:page
       for="Products.ATContentTypes.interfaces.interfaces.IATContentType"
