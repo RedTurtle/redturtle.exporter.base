@@ -9,12 +9,12 @@
 
   <include package=".browser" />
 
-  <!-- <genericsetup:registerProfile
+  <genericsetup:registerProfile
       name="default"
       title="redturtle.exporter.base"
       directory="profiles/default"
       description="Installs the redturtle.export.base add-on."
       provides="Products.GenericSetup.interfaces.EXTENSION"
-      /> -->
+      />
 
 </configure>
