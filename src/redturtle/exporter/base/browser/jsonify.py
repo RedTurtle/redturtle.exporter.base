@@ -5,6 +5,7 @@ from DateTime import DateTime
 from plone import api
 from plone.app.discussion.interfaces import IConversation
 from ploneorg.jsonify.jsonify import GetItem as BaseGetItemView
+from Products.CMFCore.interfaces import ISiteRoot
 
 import json
 import pprint
@@ -74,6 +75,25 @@ def get_solr_extrafields(self, context_dict):
     context_dict.update({'searchwords': self.context.searchwords.raw})
 
 
+def check_hierarchy_private_status(self, context_dict):
+    has_private_relatives = False
+
+    relatives = self.context.aq_chain
+    
+    for item in relatives:
+        if ISiteRoot.providedBy(item):
+           break
+
+        try:
+            if api.content.get_state(item) != 'published':
+                has_private_relatives = True
+                break
+        except:
+            break
+
+    context_dict.update({'is_private': has_private_relatives})
+
+
 class GetPortletsData(object):
 
     def get_portlets_data(self):
@@ -133,6 +153,7 @@ class GetItem(BaseGetItemView, GetPortletsData):
 
             get_discussion_objects(self, context_dict)
             get_solr_extrafields(self, context_dict)
+            check_hierarchy_private_status(self, context_dict)
 
         except Exception, e:
             tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
@@ -152,6 +173,7 @@ class GetItemEvent(BaseGetItemView, GetPortletsData):
             context_dict.update({'portlets_data': self.get_portlets_data()})
             get_discussion_objects(self, context_dict)
             get_solr_extrafields(self, context_dict)
+            check_hierarchy_private_status(self, context_dict)
 
             context_dict.update({
                 'start': context_dict.get('startDate')})
@@ -187,6 +209,7 @@ class GetItemDocument(BaseGetItemView, GetPortletsData):
                 'table_of_contents': self.context.tableContents})
             get_discussion_objects(self, context_dict)
             get_solr_extrafields(self, context_dict)
+	    check_hierarchy_private_status(self, context_dict)
 
         except Exception, e:
             tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
@@ -237,6 +260,7 @@ class GetItemTopic(BaseGetItemView, GetPortletsData):
             context_dict.update({'sort_on': sort_on})
             context_dict.update({'sort_reversed': sort_reversed})
             get_solr_extrafields(self, context_dict)
+            check_hierarchy_private_status(self, context_dict)
 
             if not context_dict.get('itemCount'):
                 context_dict.update({'item_count': '30'})
@@ -276,6 +300,7 @@ class GetItemCollection(BaseGetItemView, GetPortletsData):
             context_dict.update({'query': fixed_query})
             context_dict.update({'portlets_data': self.get_portlets_data()})
             get_solr_extrafields(self, context_dict)
+            check_hierarchy_private_status(self, context_dict)
 
         except Exception, e:
             tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
