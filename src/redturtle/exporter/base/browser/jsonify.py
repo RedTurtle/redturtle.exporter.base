@@ -77,20 +77,16 @@ def get_solr_extrafields(self, context_dict):
 
 def check_hierarchy_private_status(self, context_dict):
     has_private_relatives = False
-
     relatives = self.context.aq_chain
-    
     for item in relatives:
         if ISiteRoot.providedBy(item):
-           break
-
+            break
         try:
             if api.content.get_state(item) != 'published':
                 has_private_relatives = True
                 break
-        except:
+        except Exception:
             break
-
     context_dict.update({'is_private': has_private_relatives})
 
 
@@ -209,7 +205,7 @@ class GetItemDocument(BaseGetItemView, GetPortletsData):
                 'table_of_contents': self.context.tableContents})
             get_discussion_objects(self, context_dict)
             get_solr_extrafields(self, context_dict)
-	    check_hierarchy_private_status(self, context_dict)
+            check_hierarchy_private_status(self, context_dict)
 
         except Exception, e:
             tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
