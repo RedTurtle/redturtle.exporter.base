@@ -82,7 +82,7 @@ def check_hierarchy_private_status(self, context_dict):
         if ISiteRoot.providedBy(item):
             break
         try:
-            if api.content.get_state(item) != 'published':
+            if api.content.get_state(item, None) and api.content.get_state(item) != 'published':  # noqa
                 has_private_relatives = True
                 break
         except Exception:
