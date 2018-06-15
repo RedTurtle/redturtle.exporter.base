@@ -165,16 +165,16 @@ class GetItemLink(BaseGetItemView, GetPortletsData):
         try:
             context_dict = Wrapper(self.context)
 
-            internalLink = context_dict.get('internalLink', None)
-            externalLink = context_dict.get('externalLink', None)
-            if internalLink and internalLink != '':
-                context_dict.update({
-                    'remoteUrl': internalLink
-                })
-            elif externalLink and externalLink != '':
-                context_dict.update({
-                    'remoteUrl': externalLink
-                })
+            # internalLink = context_dict.get('internalLink', None)
+            # externalLink = context_dict.get('externalLink', None)
+            # if internalLink and internalLink != '':
+            #     context_dict.update({
+            #         'remoteUrl': internalLink
+            #     })
+            # elif externalLink and externalLink != '':
+            #     context_dict.update({
+            #         'remoteUrl': externalLink
+            #     })
 
         except Exception, e:
             tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
