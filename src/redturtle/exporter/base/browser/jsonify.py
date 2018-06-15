@@ -79,13 +79,11 @@ def check_hierarchy_private_status(self, context_dict):
     has_private_relatives = False
     relatives = self.context.aq_chain
     for item in relatives:
+        # nella root
         if ISiteRoot.providedBy(item):
             break
-        try:
-            if api.content.get_state(item, None) and api.content.get_state(item) != 'published':  # noqa
-                has_private_relatives = True
-                break
-        except Exception:
+        if api.content.get_state(item, None) and api.content.get_state(item) != 'published':  # noqa
+            has_private_relatives = True
             break
     context_dict.update({'is_private': has_private_relatives})
 
@@ -142,6 +140,34 @@ class GetItem(BaseGetItemView, GetPortletsData):
         """
         try:
             context_dict = Wrapper(self.context)
+            if context_dict.get('_defaultpage'):
+                context_dict.update({
+                    'default_page': context_dict.get('_defaultpage')
+                })
+
+            get_discussion_objects(self, context_dict)
+            get_solr_extrafields(self, context_dict)
+            check_hierarchy_private_status(self, context_dict)
+
+        except Exception, e:
+            tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
+            return 'ERROR: exception wrapping object: %s\n%s' % (str(e), tb)
+
+        return get_json_object(self, context_dict)
+
+
+class GetItemLink(BaseGetItemView, GetPortletsData):
+
+    def __call__(self):
+        """
+        Generic content-type
+        """
+        try:
+            context_dict = Wrapper(self.context)
+
+            import pdb
+            pdb.set_trace()
+
             if context_dict.get('_defaultpage'):
                 context_dict.update({
                     'default_page': context_dict.get('_defaultpage')
