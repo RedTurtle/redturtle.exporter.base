@@ -176,6 +176,10 @@ class GetItemLink(BaseGetItemView, GetPortletsData):
             #         'remoteUrl': externalLink
             #     })
 
+            get_discussion_objects(self, context_dict)
+            get_solr_extrafields(self, context_dict)
+            check_hierarchy_private_status(self, context_dict)
+
         except Exception, e:
             tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
             return 'ERROR: exception wrapping object: %s\n%s' % (str(e), tb)
