@@ -165,17 +165,16 @@ class GetItemLink(BaseGetItemView, GetPortletsData):
         try:
             context_dict = Wrapper(self.context)
 
-            import pdb
-            pdb.set_trace()
-
-            if context_dict.get('_defaultpage'):
+            internalLink = context_dict.get('internalLink', None)
+            externalLink = context_dict.get('externalLink', None)
+            if internalLink and internalLink != '':
                 context_dict.update({
-                    'default_page': context_dict.get('_defaultpage')
+                    'remoteUrl': internalLink
                 })
-
-            get_discussion_objects(self, context_dict)
-            get_solr_extrafields(self, context_dict)
-            check_hierarchy_private_status(self, context_dict)
+            elif externalLink and externalLink != '':
+                context_dict.update({
+                    'remoteUrl': externalLink
+                })
 
         except Exception, e:
             tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
