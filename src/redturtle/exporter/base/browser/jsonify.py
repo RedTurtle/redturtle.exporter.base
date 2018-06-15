@@ -79,8 +79,6 @@ def check_hierarchy_private_status(self, context_dict):
     has_private_relatives = False
     relatives = self.context.aq_chain
     for item in relatives:
-        import pdb
-        pdb.set_trace()
         if ISiteRoot.providedBy(item):
             # se è la root del sito esci
             break
