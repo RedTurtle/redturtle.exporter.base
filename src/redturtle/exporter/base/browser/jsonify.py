@@ -88,6 +88,17 @@ def check_hierarchy_private_status(self, context_dict):
     context_dict.update({'is_private': has_private_relatives})
 
 
+def get_list_of_conteiner_type(self, context_dict):
+    fathers_type_list = []
+    relatives = self.context.aq_chain
+    for item in relatives:
+        if ISiteRoot.providedBy(item):
+            # se è la root del sito esci
+            break
+        fathers_type_list.append(item.portal_type)
+    context_dict.update({'fathers_type_list': fathers_type_list})
+
+
 class GetPortletsData(object):
 
     def get_portlets_data(self):
@@ -148,6 +159,7 @@ class GetItem(BaseGetItemView, GetPortletsData):
             get_discussion_objects(self, context_dict)
             get_solr_extrafields(self, context_dict)
             check_hierarchy_private_status(self, context_dict)
+            get_list_of_conteiner_type(self, context_dict)
 
         except Exception, e:
             tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
@@ -179,6 +191,7 @@ class GetItemLink(BaseGetItemView, GetPortletsData):
             get_discussion_objects(self, context_dict)
             get_solr_extrafields(self, context_dict)
             check_hierarchy_private_status(self, context_dict)
+            get_list_of_conteiner_type(self, context_dict)
 
         except Exception, e:
             tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
@@ -199,6 +212,7 @@ class GetItemEvent(BaseGetItemView, GetPortletsData):
             get_discussion_objects(self, context_dict)
             get_solr_extrafields(self, context_dict)
             check_hierarchy_private_status(self, context_dict)
+            get_list_of_conteiner_type(self, context_dict)
 
             context_dict.update({
                 'start': context_dict.get('startDate')})
@@ -235,6 +249,7 @@ class GetItemDocument(BaseGetItemView, GetPortletsData):
             get_discussion_objects(self, context_dict)
             get_solr_extrafields(self, context_dict)
             check_hierarchy_private_status(self, context_dict)
+            get_list_of_conteiner_type(self, context_dict)
 
         except Exception, e:
             tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
@@ -286,6 +301,7 @@ class GetItemTopic(BaseGetItemView, GetPortletsData):
             context_dict.update({'sort_reversed': sort_reversed})
             get_solr_extrafields(self, context_dict)
             check_hierarchy_private_status(self, context_dict)
+            get_list_of_conteiner_type(self, context_dict)
 
             if not context_dict.get('itemCount'):
                 context_dict.update({'item_count': '30'})
@@ -326,6 +342,7 @@ class GetItemCollection(BaseGetItemView, GetPortletsData):
             context_dict.update({'portlets_data': self.get_portlets_data()})
             get_solr_extrafields(self, context_dict)
             check_hierarchy_private_status(self, context_dict)
+            get_list_of_conteiner_type(self, context_dict)
 
         except Exception, e:
             tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
