@@ -79,8 +79,10 @@ def check_hierarchy_private_status(self, context_dict):
     has_private_relatives = False
     relatives = self.context.aq_chain
     for item in relatives:
-        # nella root
+        import pdb
+        pdb.set_trace()
         if ISiteRoot.providedBy(item):
+            # se è la root del sito esci
             break
         if api.content.get_state(item, None) and api.content.get_state(item) != 'published':  # noqa
             has_private_relatives = True
