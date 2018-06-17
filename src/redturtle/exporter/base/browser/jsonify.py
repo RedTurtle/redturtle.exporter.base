@@ -80,14 +80,23 @@ def check_hierarchy_private_status(self, context_dict):
     relatives = self.context.aq_chain
     for item in relatives:
         if ISiteRoot.providedBy(item):
+            # se è la root del sito esci
             break
-        try:
-            if api.content.get_state(item, None) and api.content.get_state(item) != 'published':  # noqa
-                has_private_relatives = True
-                break
-        except Exception:
+        if api.content.get_state(item, None) and api.content.get_state(item) != 'published':  # noqa
+            has_private_relatives = True
             break
     context_dict.update({'is_private': has_private_relatives})
+
+
+def get_list_of_conteiner_type(self, context_dict):
+    fathers_type_list = []
+    relatives = self.context.aq_chain
+    for item in relatives:
+        if ISiteRoot.providedBy(item):
+            # se è la root del sito esci
+            break
+        fathers_type_list.append(item.portal_type)
+    context_dict.update({'fathers_type_list': fathers_type_list})
 
 
 class GetPortletsData(object):
@@ -150,6 +159,39 @@ class GetItem(BaseGetItemView, GetPortletsData):
             get_discussion_objects(self, context_dict)
             get_solr_extrafields(self, context_dict)
             check_hierarchy_private_status(self, context_dict)
+            get_list_of_conteiner_type(self, context_dict)
+
+        except Exception, e:
+            tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
+            return 'ERROR: exception wrapping object: %s\n%s' % (str(e), tb)
+
+        return get_json_object(self, context_dict)
+
+
+class GetItemLink(BaseGetItemView, GetPortletsData):
+
+    def __call__(self):
+        """
+        Generic content-type
+        """
+        try:
+            context_dict = Wrapper(self.context)
+
+            # internalLink = context_dict.get('internalLink', None)
+            # externalLink = context_dict.get('externalLink', None)
+            # if internalLink and internalLink != '':
+            #     context_dict.update({
+            #         'remoteUrl': internalLink
+            #     })
+            # elif externalLink and externalLink != '':
+            #     context_dict.update({
+            #         'remoteUrl': externalLink
+            #     })
+
+            get_discussion_objects(self, context_dict)
+            get_solr_extrafields(self, context_dict)
+            check_hierarchy_private_status(self, context_dict)
+            get_list_of_conteiner_type(self, context_dict)
 
         except Exception, e:
             tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
@@ -170,6 +212,7 @@ class GetItemEvent(BaseGetItemView, GetPortletsData):
             get_discussion_objects(self, context_dict)
             get_solr_extrafields(self, context_dict)
             check_hierarchy_private_status(self, context_dict)
+            get_list_of_conteiner_type(self, context_dict)
 
             context_dict.update({
                 'start': context_dict.get('startDate')})
@@ -206,6 +249,7 @@ class GetItemDocument(BaseGetItemView, GetPortletsData):
             get_discussion_objects(self, context_dict)
             get_solr_extrafields(self, context_dict)
             check_hierarchy_private_status(self, context_dict)
+            get_list_of_conteiner_type(self, context_dict)
 
         except Exception, e:
             tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
@@ -257,6 +301,7 @@ class GetItemTopic(BaseGetItemView, GetPortletsData):
             context_dict.update({'sort_reversed': sort_reversed})
             get_solr_extrafields(self, context_dict)
             check_hierarchy_private_status(self, context_dict)
+            get_list_of_conteiner_type(self, context_dict)
 
             if not context_dict.get('itemCount'):
                 context_dict.update({'item_count': '30'})
@@ -297,6 +342,7 @@ class GetItemCollection(BaseGetItemView, GetPortletsData):
             context_dict.update({'portlets_data': self.get_portlets_data()})
             get_solr_extrafields(self, context_dict)
             check_hierarchy_private_status(self, context_dict)
+            get_list_of_conteiner_type(self, context_dict)
 
         except Exception, e:
             tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))

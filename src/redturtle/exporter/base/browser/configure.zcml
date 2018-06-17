@@ -49,6 +49,13 @@
       />
 
   <browser:page
+      for="Products.ATContentTypes.interfaces.link.IATLink"
+      name="get_item"
+      class=".jsonify.GetItemLink"
+      permission="zope2.ViewManagementScreens"
+      />
+
+  <browser:page
       for="plone.app.collection.interfaces.ICollection"
       name="get_item"
       class=".jsonify.GetItemCollection"
