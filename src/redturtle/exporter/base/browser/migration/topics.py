@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 """ Migrate Topic to DX-Collectons.
-
 Note on Subtopics:
 When a migration of Subtopics is needed, you can replace the default itemish
 Collection with a folderish Collection by creating a new type folderish
@@ -11,7 +10,6 @@ from DateTime import DateTime
 from plone import api
 from plone.app.querystring.interfaces import IQuerystringRegistryReader
 from plone.registry.interfaces import IRegistry
-from Products.CMFCore.utils import getToolByName
 from zope.component import getUtility
 from zope.dottedname.resolve import resolve
 
@@ -20,7 +18,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 prefix = 'plone.app.querystring'
-INVALID_OPERATION = 'Invalid operation %s for criterion: %s'
+INVALID_OPERATION = 'Invalid operation {0} for criterion: {1}'
 
 
 # Converters
@@ -53,13 +51,17 @@ class CriterionConverter(object):
         except KeyError:
             logger.warn(
                 'Index {0} is no criterion index. Registry gives '
-                'KeyError: {1}. Try inspecting portal_atct...'.format(index, key)
+                'KeyError: {1}. Try inspecting portal_atct...'.format(
+                    index, key
+                )
             )
             try:
-                index_obj = api.portal.get().portal_atct.getIndex(index)
+                api.portal.get().portal_atct.getIndex(index)
             except KeyError:
                 logger.error(
-                    'Index {0} is no criterion index. Giveup, sorry.'.format(index)
+                    'Index {0} is no criterion index. Giveup, sorry.'.format(
+                        index
+                    )
                 )
                 return False
         return True
@@ -74,17 +76,23 @@ class CriterionConverter(object):
         except KeyError:
             logger.warn(
                 'Index {0} is no criterion index. Registry gives '
-                'KeyError: {1}. Try inspecting portal_atct...'.format(index, key)
+                'KeyError: {1}. Try inspecting portal_atct...'.format(
+                    index, key
+                )
             )
             try:
                 index_obj = api.portal.get().portal_atct.getIndex(index)
                 return index_obj.enabled
             except KeyError:
                 logger.error(
-                    'Index {0} is no criterion index. Giveup, sorry.'.format(index)
+                    'Index {0} is no criterion index. Giveup, sorry.'.format(
+                        index
+                    )
                 )
                 return False
-        logger.warn('Index %s is not enabled as criterion index. ', index)
+        logger.warn('Index {0} is not enabled as criterion index. '.format(
+            index
+        ))
         return False
 
     def switch_type_to_portal_type(self, value, criterion):
@@ -100,7 +108,7 @@ class CriterionConverter(object):
         if not values:
             return value
         new_values = []
-        ttool = getToolByName(criterion, 'portal_types')
+        ttool = api.portal.get_tool(name='portal_types')
         type_to_portal_type = {}
         portal_types = ttool.objectIds()
         for portal_type, Type in ttool.listTypeTitles().items():
@@ -111,7 +119,11 @@ class CriterionConverter(object):
                 if Type in portal_types:
                     portal_type = Type
                 else:
-                    logger.warn('Cannot switch Type %r to portal_type.', Type)
+                    logger.warn(
+                        'Cannot switch Type {0!r} to portal_type.'.format(
+                            Type
+                        )
+                    )
                     continue
             new_values.append(portal_type)
         if isinstance(value, dict):
@@ -125,16 +137,17 @@ class CriterionConverter(object):
         # Check that the operation exists.
         op_info = registry.get(operation)
         if op_info is None:
-            logger.error('Operation %r is not defined.', operation)
+            logger.error('Operation {0!r} is not defined.'.format(operation))
             return False
         op_function_name = op_info.get('operation')
         try:
             resolve(op_function_name)
         except ImportError:
             logger.error(
-                'ImportError for operation %r: %s',
-                operation,
-                op_function_name,
+                'ImportError for operation {0!r}: {1}'.format(
+                    operation,
+                    op_function_name,
+                )
             )
             return False
         return True
@@ -164,7 +177,7 @@ class CriterionConverter(object):
     def __call__(self, formquery, criterion, registry):
         criteria = criterion.getCriteriaItems()
         if not criteria:
-            logger.warn('Ignoring empty criterion %s.', criterion)
+            logger.warn('Ignoring empty criterion {0}.'.format(criterion))
             return
         for index, value in criteria:
             # Check if the index is known and enabled as criterion index.
@@ -190,7 +203,7 @@ class CriterionConverter(object):
                 criterion
             )
             if not operation:
-                logger.error(INVALID_OPERATION % (operation, criterion))
+                logger.error(INVALID_OPERATION.format(operation, criterion))
                 # TODO: raise an Exception?
                 continue
 
@@ -225,7 +238,7 @@ class ATDateCriteriaConverter(CriterionConverter):
 
     def __call__(self, formquery, criterion, registry):  # noqa
         if criterion.value is None:
-            logger.warn('Ignoring empty criterion %s.', criterion)
+            logger.warn('Ignoring empty criterion {0}.'.format(criterion))
             return
         field = criterion.Field()
         value = criterion.Value()
@@ -254,13 +267,13 @@ class ATDateCriteriaConverter(CriterionConverter):
                     operation, criterion))
                 pass
                 # TODO just ignore it? Commented, must be handled better
-                # raise ValueError(INVALID_OPERATION % (operation, criterion))
+                # raise ValueError(INVALID_OPERATION.format(operation, criterion))  # noqa
             if not self.is_operation_valid(registry, operation):
                 logger.warn('INVALID_OPERATION {0} for Criterion {1}'.format(
                     operation, criterion))
                 pass
                 # just ignore it? Commented, must be handled better
-                # raise ValueError(INVALID_OPERATION % (operation, criterion))
+                # raise ValueError(INVALID_OPERATION.format(operation, criterion))  # noqa
             # Add a row to the form query.
             row = {'i': field,
                    'o': operation}
@@ -333,8 +346,8 @@ class ATSelectionCriterionConverter(CriterionConverter):
         values = value['query']
         if value.get('operator') == 'and' and len(values) > 1 and \
                 index != 'Subject':
-            logger.warn("Cannot handle selection operator 'and'. Using 'or'. "
-                        "%r", value)
+            logger.warn('Cannot handle selection operator "and". Using 'or'. '
+                        '{0!r}'.format(value))
 
         # Special handling for portal_type=Topic.
         if index == 'portal_type' and 'Topic' in values:
@@ -419,7 +432,7 @@ class ATBooleanCriterionConverter(CriterionConverter):
             operation = self.get_valid_operation(
                 registry, fieldname, value, criterion)
             if not operation:
-                logger.error(INVALID_OPERATION % (operation, criterion))
+                logger.error(INVALID_OPERATION.format(operation, criterion))
                 # TODO: raise an Exception?
                 continue
             # Add a row to the form query.
@@ -502,8 +515,6 @@ class TopicMigrator():
     src_meta_type = 'ATTopic'
     dst_portal_type = dst_meta_type = 'Collection'
 
-
-
     @property
     def registry(self):
         return self.kwargs['registry']
@@ -524,14 +535,16 @@ class TopicMigrator():
         self._collection_sort_on = None
         self._collection_query = None
         path = '/'.join(self.old.getPhysicalPath())
-        logger.info('Migrating %s at %s', self.src_portal_type, path)
+        logger.info('Migrating {0} at {1}'.format(
+            self.src_portal_type, path)
+        )
         # Get the old criteria.
         # See also Products.ATContentTypes.content.topic.buildQuery
         criteria = self.old.listCriteria()
         logger.debug(
-            'Old criteria for %s: %r',
-            path,
-            [(crit, crit.getCriteriaItems()) for crit in criteria],
+            'Old criteria for {0}: {1!r}'.format(
+                path,
+                [(crit, crit.getCriteriaItems()) for crit in criteria])
         )
         formquery = []
         for criterion in criteria:
@@ -549,7 +562,8 @@ class TopicMigrator():
                 raise ValueError(msg)
             converter(formquery, criterion, self.registry)
 
-        logger.debug('New query for %s: %r', path, formquery)
+        logger.debug('New query for {0}: {1!r}'.format(
+            path, formquery))
         return formquery
 
 

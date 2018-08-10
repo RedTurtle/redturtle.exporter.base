@@ -20,7 +20,7 @@ def _clean_dict(dct, error):
         if message.startswith(repr(value)):
             del new_dict[key]
             return key, new_dict
-    raise ValueError("Could not clean up object")
+    raise ValueError('Could not clean up object')
 
 
 def get_json_object(self, context_dict):
@@ -104,11 +104,13 @@ class GetPortletsData(object):
     def get_portlets_data(self):
         """
         """
-        path = "/".join(self.context.getPhysicalPath())
+        path = '/'.join(self.context.getPhysicalPath())
         portal = api.portal.get()
-        target = '%s/inspect-portlets' % path
+        target = '{0}/inspect-portlets'.format(path)
         try:
-            view = portal.unrestrictedTraverse('%s/inspect-portlets' % path)
+            view = portal.unrestrictedTraverse(
+                '{0}/inspect-portlets'.format(path)
+            )
         except KeyError:
             view = None
         portlets_data = []
@@ -123,7 +125,7 @@ class GetPortletsData(object):
                     tmp = value[0].replace('<', '').replace('>', '').split('++')  # noqa
                     p_key = '++{0}++{1}'.format(tmp[1], tmp[2])
                     target = '{0}/{1}'.format(
-                        "/".join(self.context.getPhysicalPath()),
+                        '/'.join(self.context.getPhysicalPath()),
                         p_key
                     )
                     portlet = portal.unrestrictedTraverse(target)
@@ -163,7 +165,10 @@ class GetItem(BaseGetItemView, GetPortletsData):
 
         except Exception, e:
             tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
-            return 'ERROR: exception wrapping object: %s\n%s' % (str(e), tb)
+            return 'ERROR: exception wrapping object: {0}\n{1}'.format(
+                str(e),
+                tb
+            )
 
         return get_json_object(self, context_dict)
 
@@ -177,17 +182,6 @@ class GetItemLink(BaseGetItemView, GetPortletsData):
         try:
             context_dict = Wrapper(self.context)
 
-            # internalLink = context_dict.get('internalLink', None)
-            # externalLink = context_dict.get('externalLink', None)
-            # if internalLink and internalLink != '':
-            #     context_dict.update({
-            #         'remoteUrl': internalLink
-            #     })
-            # elif externalLink and externalLink != '':
-            #     context_dict.update({
-            #         'remoteUrl': externalLink
-            #     })
-
             get_discussion_objects(self, context_dict)
             get_solr_extrafields(self, context_dict)
             check_hierarchy_private_status(self, context_dict)
@@ -195,7 +189,10 @@ class GetItemLink(BaseGetItemView, GetPortletsData):
 
         except Exception, e:
             tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
-            return 'ERROR: exception wrapping object: %s\n%s' % (str(e), tb)
+            return 'ERROR: exception wrapping object: {0}\n{1}'.format(
+                str(e),
+                tb
+            )
 
         return get_json_object(self, context_dict)
 
@@ -229,7 +226,9 @@ class GetItemEvent(BaseGetItemView, GetPortletsData):
 
         except Exception, e:
             tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
-            return 'ERROR: exception wrapping object: %s\n%s' % (str(e), tb)
+            return 'ERROR: exception wrapping object: {0}\n{1}'.format(
+                str(e), tb
+            )
 
         return get_json_object(self, context_dict)
 
@@ -253,7 +252,9 @@ class GetItemDocument(BaseGetItemView, GetPortletsData):
 
         except Exception, e:
             tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
-            return 'ERROR: exception wrapping object: %s\n%s' % (str(e), tb)
+            return 'ERROR: exception wrapping object: {0}\n{1}'.format(
+                str(e), tb
+            )
 
         return get_json_object(self, context_dict)
 
@@ -310,7 +311,9 @@ class GetItemTopic(BaseGetItemView, GetPortletsData):
                     'item_count': context_dict.get('itemCount')})
         except Exception, e:
             tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
-            return 'ERROR: exception wrapping object: %s\n%s' % (str(e), tb)
+            return 'ERROR: exception wrapping object: {0}\n{1}'.format(
+                str(e), tb
+            )
 
         return get_json_object(self, context_dict)
 
@@ -346,7 +349,9 @@ class GetItemCollection(BaseGetItemView, GetPortletsData):
 
         except Exception, e:
             tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
-            return 'ERROR: exception wrapping object: %s\n%s' % (str(e), tb)
+            return 'ERROR: exception wrapping object: {0}\n{1}'.format(
+                str(e), tb
+            )
 
         return get_json_object(self, context_dict)
 
@@ -365,7 +370,9 @@ class GetItemFile(BaseGetItemView):
 
         except Exception, e:
             tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
-            return 'ERROR: exception wrapping object: %s\n%s' % (str(e), tb)
+            return 'ERROR: exception wrapping object: {0}\n{1}'.format(
+                str(e), tb
+            )
 
         return get_json_object(self, context_dict)
 
@@ -384,6 +391,8 @@ class GetItemImage(BaseGetItemView):
 
         except Exception, e:
             tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
-            return 'ERROR: exception wrapping object: %s\n%s' % (str(e), tb)
+            return 'ERROR: exception wrapping object: {0}\n{1}'.format(
+                str(e), tb
+            )
 
         return get_json_object(self, context_dict)
