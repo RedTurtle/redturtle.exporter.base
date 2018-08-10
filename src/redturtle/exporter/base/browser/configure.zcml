@@ -61,5 +61,16 @@
       class=".jsonify.GetItemCollection"
       permission="zope2.ViewManagementScreens"
       />
-
+  <browser:page
+      for="Products.ATContentTypes.interfaces.IATFile"
+      name="get_item"
+      class=".jsonify.GetItemFile"
+      permission="zope2.ViewManagementScreens"
+      />
+  <browser:page
+      for="Products.ATContentTypes.interfaces.IATImage"
+      name="get_item"
+      class=".jsonify.GetItemImage"
+      permission="zope2.ViewManagementScreens"
+      />
 </configure>

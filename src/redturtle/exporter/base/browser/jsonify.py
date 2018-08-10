@@ -349,3 +349,41 @@ class GetItemCollection(BaseGetItemView, GetPortletsData):
             return 'ERROR: exception wrapping object: %s\n%s' % (str(e), tb)
 
         return get_json_object(self, context_dict)
+
+
+class GetItemFile(BaseGetItemView):
+
+    def __call__(self):
+        """
+        Files from Plone 3 could have title not set.
+        In this case, set it with the id
+        """
+        try:
+            context_dict = Wrapper(self.context)
+            if not context_dict.get('title'):
+                context_dict['title'] = context_dict.get('id')
+
+        except Exception, e:
+            tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
+            return 'ERROR: exception wrapping object: %s\n%s' % (str(e), tb)
+
+        return get_json_object(self, context_dict)
+
+
+class GetItemImage(BaseGetItemView):
+
+    def __call__(self):
+        """
+        Images from Plone 3 could have title not set.
+        In this case, set it with the id
+        """
+        try:
+            context_dict = Wrapper(self.context)
+            if not context_dict.get('title'):
+                context_dict['title'] = context_dict.get('id')
+
+        except Exception, e:
+            tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
+            return 'ERROR: exception wrapping object: %s\n%s' % (str(e), tb)
+
+        return get_json_object(self, context_dict)
