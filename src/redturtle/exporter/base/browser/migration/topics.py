@@ -381,6 +381,8 @@ class ATPathCriterionConverter(CriterionConverter):
         if not criterion.Recurse():
             for index, path in enumerate(raw):
                 raw[index] = path + '::1'
+        else:
+            raw = map(lambda x: api.content.get(UID=x).absolute_url_path(), raw) if raw else []
         return raw
 
     def add_to_formquery(self, formquery, index, operation, query_value):
