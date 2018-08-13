@@ -362,6 +362,10 @@ class GetItemFile(BaseGetItemView):
             context_dict = Wrapper(self.context)
             if not context_dict.get('title'):
                 context_dict['title'] = context_dict.get('id')
+            get_discussion_objects(self, context_dict)
+            get_solr_extrafields(self, context_dict)
+            check_hierarchy_private_status(self, context_dict)
+            get_list_of_conteiner_type(self, context_dict)
 
         except Exception, e:
             tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
@@ -381,6 +385,10 @@ class GetItemImage(BaseGetItemView):
             context_dict = Wrapper(self.context)
             if not context_dict.get('title'):
                 context_dict['title'] = context_dict.get('id')
+            get_discussion_objects(self, context_dict)
+            get_solr_extrafields(self, context_dict)
+            check_hierarchy_private_status(self, context_dict)
+            get_list_of_conteiner_type(self, context_dict)
 
         except Exception, e:
             tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
