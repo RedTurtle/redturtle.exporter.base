@@ -53,13 +53,15 @@ class CriterionConverter(object):
         except KeyError:
             logger.warn(
                 'Index {0} is no criterion index. Registry gives '
-                'KeyError: {1}. Try inspecting portal_atct...'.format(index, key)
+                'KeyError: {1}. Try inspecting portal_atct...'.format(
+                    index, key)
             )
             try:
                 index_obj = api.portal.get().portal_atct.getIndex(index)
             except KeyError:
                 logger.error(
-                    'Index {0} is no criterion index. Giveup, sorry.'.format(index)
+                    'Index {0} is no criterion index. Giveup, sorry.'.format(
+                        index)
                 )
                 return False
         return True
@@ -74,14 +76,16 @@ class CriterionConverter(object):
         except KeyError:
             logger.warn(
                 'Index {0} is no criterion index. Registry gives '
-                'KeyError: {1}. Try inspecting portal_atct...'.format(index, key)
+                'KeyError: {1}. Try inspecting portal_atct...'.format(
+                    index, key)
             )
             try:
                 index_obj = api.portal.get().portal_atct.getIndex(index)
                 return index_obj.enabled
             except KeyError:
                 logger.error(
-                    'Index {0} is no criterion index. Giveup, sorry.'.format(index)
+                    'Index {0} is no criterion index. Giveup, sorry.'.format(
+                        index)
                 )
                 return False
         logger.warn('Index %s is not enabled as criterion index. ', index)
@@ -369,7 +373,8 @@ class ATPathCriterionConverter(CriterionConverter):
             for index, path in enumerate(raw):
                 raw[index] = path + '::1'
         else:
-            raw = map(lambda x: api.content.get(UID=x).absolute_url_path(), raw) if raw else []
+            raw = map(lambda x: api.content.get(
+                UID=x).absolute_url_path(), raw) if raw else []
         return raw
 
     def add_to_formquery(self, formquery, index, operation, query_value):
@@ -504,8 +509,6 @@ class TopicMigrator():
     src_meta_type = 'ATTopic'
     dst_portal_type = dst_meta_type = 'Collection'
 
-
-
     @property
     def registry(self):
         return self.kwargs['registry']
@@ -569,4 +572,5 @@ CONVERTERS = {
     'ATSelectionCriterion': ATSelectionCriterionConverter(),
     'ATSimpleIntCriterion': ATSimpleIntCriterionConverter(),
     'ATSimpleStringCriterion': ATSimpleStringCriterionConverter(),
+    'ATAllAreasCriterion': ATListCriterionConverter(),
 }
