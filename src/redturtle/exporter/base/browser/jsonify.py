@@ -99,6 +99,12 @@ def get_list_of_conteiner_type(self, context_dict):
     context_dict.update({'fathers_type_list': fathers_type_list})
 
 
+def get_taxonomy_object(self, context_dict):
+    context_dict.update({'taxonomies': context_dict.get('siteAreas', None)})
+    if context_dict.get('siteAreas', None):
+        del context_dict['siteAreas']
+
+
 class GetPortletsData(object):
 
     def get_portlets_data(self):
@@ -143,76 +149,65 @@ class GetPortletsData(object):
         return portlets_data
 
 
-class GetItem(BaseGetItemView, GetPortletsData):
+class BaseGetItem(BaseGetItemView, GetPortletsData):
+
+    def __call__(self):
+        context_dict = Wrapper(self.context)
+
+        # funzioni comuni a tutti i get_item
+        get_discussion_objects(self, context_dict)
+        get_solr_extrafields(self, context_dict)
+        check_hierarchy_private_status(self, context_dict)
+        get_list_of_conteiner_type(self, context_dict)
+        get_taxonomy_object(self, context_dict)
+
+        return context_dict
+
+
+class GetItem(BaseGetItem):
 
     def __call__(self):
         """
         Generic content-type
         """
         try:
-            context_dict = Wrapper(self.context)
+            context_dict = super(GetItem, self).__call__()
             if context_dict.get('_defaultpage'):
                 context_dict.update({
                     'default_page': context_dict.get('_defaultpage')
                 })
 
-            get_discussion_objects(self, context_dict)
-            get_solr_extrafields(self, context_dict)
-            check_hierarchy_private_status(self, context_dict)
-            get_list_of_conteiner_type(self, context_dict)
+            return get_json_object(self, context_dict)
 
         except Exception, e:
             tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
             return 'ERROR: exception wrapping object: %s\n%s' % (str(e), tb)
 
-        return get_json_object(self, context_dict)
 
-
-class GetItemLink(BaseGetItemView, GetPortletsData):
+class GetItemLink(BaseGetItem):
 
     def __call__(self):
         """
         Generic content-type
         """
         try:
-            context_dict = Wrapper(self.context)
-
-            # internalLink = context_dict.get('internalLink', None)
-            # externalLink = context_dict.get('externalLink', None)
-            # if internalLink and internalLink != '':
-            #     context_dict.update({
-            #         'remoteUrl': internalLink
-            #     })
-            # elif externalLink and externalLink != '':
-            #     context_dict.update({
-            #         'remoteUrl': externalLink
-            #     })
-
-            get_discussion_objects(self, context_dict)
-            get_solr_extrafields(self, context_dict)
-            check_hierarchy_private_status(self, context_dict)
-            get_list_of_conteiner_type(self, context_dict)
+            context_dict = super(GetItemLink, self).__call__()
+            return get_json_object(self, context_dict)
 
         except Exception, e:
             tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
             return 'ERROR: exception wrapping object: %s\n%s' % (str(e), tb)
 
-        return get_json_object(self, context_dict)
 
-
-class GetItemEvent(BaseGetItemView, GetPortletsData):
+class GetItemEvent(BaseGetItem):
 
     def __call__(self):
         """
         Event
         """
         try:
-            context_dict = Wrapper(self.context)
+            context_dict = super(GetItemEvent, self).__call__()
             context_dict.update({'portlets_data': self.get_portlets_data()})
-            get_discussion_objects(self, context_dict)
-            get_solr_extrafields(self, context_dict)
-            check_hierarchy_private_status(self, context_dict)
-            get_list_of_conteiner_type(self, context_dict)
 
             context_dict.update({
                 'start': context_dict.get('startDate')})
@@ -227,38 +222,33 @@ class GetItemEvent(BaseGetItemView, GetPortletsData):
             context_dict.update({
                 'event_url': context_dict.get('eventUrl')})
 
+            return get_json_object(self, context_dict)
+
         except Exception, e:
             tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
             return 'ERROR: exception wrapping object: %s\n%s' % (str(e), tb)
 
-        return get_json_object(self, context_dict)
 
-
-class GetItemDocument(BaseGetItemView, GetPortletsData):
+class GetItemDocument(BaseGetItem):
 
     def __call__(self):
         """
         Document
         """
         try:
-            context_dict = Wrapper(self.context)
-            context_dict.update({
-                'portlets_data': self.get_portlets_data()})
+            context_dict = super(GetItemDocument, self).__call__()
+            context_dict.update({'portlets_data': self.get_portlets_data()})
             context_dict.update({
                 'table_of_contents': self.context.tableContents})
-            get_discussion_objects(self, context_dict)
-            get_solr_extrafields(self, context_dict)
-            check_hierarchy_private_status(self, context_dict)
-            get_list_of_conteiner_type(self, context_dict)
+
+            return get_json_object(self, context_dict)
 
         except Exception, e:
             tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
             return 'ERROR: exception wrapping object: %s\n%s' % (str(e), tb)
 
-        return get_json_object(self, context_dict)
 
-
-class GetItemTopic(BaseGetItemView, GetPortletsData):
+class GetItemTopic(BaseGetItem):
 
     def convert_criterion(self, old_criterion):
         pass
@@ -294,14 +284,11 @@ class GetItemTopic(BaseGetItemView, GetPortletsData):
 
             sort_on = mt._collection_sort_on
             sort_reversed = mt._collection_sort_reversed
-            context_dict = Wrapper(self.context)
+            context_dict = super(GetItemTopic, self).__call__()
             context_dict.update({'portlets_data': self.get_portlets_data()})
             context_dict.update({'query': criterions_list})
             context_dict.update({'sort_on': sort_on})
             context_dict.update({'sort_reversed': sort_reversed})
-            get_solr_extrafields(self, context_dict)
-            check_hierarchy_private_status(self, context_dict)
-            get_list_of_conteiner_type(self, context_dict)
 
             if not context_dict.get('itemCount'):
                 context_dict.update({'item_count': '30'})
@@ -315,14 +302,14 @@ class GetItemTopic(BaseGetItemView, GetPortletsData):
         return get_json_object(self, context_dict)
 
 
-class GetItemCollection(BaseGetItemView, GetPortletsData):
+class GetItemCollection(BaseGetItem):
 
     def __call__(self):
         """
         Collection
         """
         try:
-            context_dict = Wrapper(self.context)
+            context_dict = super(GetItemCollection, self).__call__()
             query = context_dict['query']
 
             fixed_query = []
@@ -340,9 +327,6 @@ class GetItemCollection(BaseGetItemView, GetPortletsData):
 
             context_dict.update({'query': fixed_query})
             context_dict.update({'portlets_data': self.get_portlets_data()})
-            get_solr_extrafields(self, context_dict)
-            check_hierarchy_private_status(self, context_dict)
-            get_list_of_conteiner_type(self, context_dict)
 
         except Exception, e:
             tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
@@ -351,7 +335,7 @@ class GetItemCollection(BaseGetItemView, GetPortletsData):
         return get_json_object(self, context_dict)
 
 
-class GetItemFile(BaseGetItemView):
+class GetItemFile(BaseGetItem):
 
     def __call__(self):
         """
@@ -359,13 +343,9 @@ class GetItemFile(BaseGetItemView):
         In this case, set it with the id
         """
         try:
-            context_dict = Wrapper(self.context)
+            context_dict = super(GetItemFile, self).__call__()
             if not context_dict.get('title'):
                 context_dict['title'] = context_dict.get('id')
-            get_discussion_objects(self, context_dict)
-            get_solr_extrafields(self, context_dict)
-            check_hierarchy_private_status(self, context_dict)
-            get_list_of_conteiner_type(self, context_dict)
 
         except Exception, e:
             tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
@@ -374,7 +354,7 @@ class GetItemFile(BaseGetItemView):
         return get_json_object(self, context_dict)
 
 
-class GetItemImage(BaseGetItemView):
+class GetItemImage(BaseGetItem):
 
     def __call__(self):
         """
@@ -382,13 +362,9 @@ class GetItemImage(BaseGetItemView):
         In this case, set it with the id
         """
         try:
-            context_dict = Wrapper(self.context)
+            context_dict = super(GetItemImage, self).__call__()
             if not context_dict.get('title'):
                 context_dict['title'] = context_dict.get('id')
-            get_discussion_objects(self, context_dict)
-            get_solr_extrafields(self, context_dict)
-            check_hierarchy_private_status(self, context_dict)
-            get_list_of_conteiner_type(self, context_dict)
 
         except Exception, e:
             tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
