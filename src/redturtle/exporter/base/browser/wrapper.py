@@ -144,6 +144,8 @@ class Wrapper(BaseWrapper):
             self.set_raw_field(field=field, fieldname=fieldname, type_=type_)
         elif type_ == 'siteAreasField':
             self.set_siteareas_field(field=field, fieldname=fieldname)
+        elif type_ == 'argumentsField':
+            self.set_parerarguments_field(field=field, fieldname=fieldname)
         else:
             raise TypeError(
                 'Unknown field type for ArchetypesWrapper in {0} in {1}'.format(  # noqa
@@ -279,3 +281,6 @@ class Wrapper(BaseWrapper):
             return
         siteareas = api.content.find(UID=uids)
         self[fieldname] = [x.Title for x in siteareas]
+
+    def set_parerarguments_field(self, field, fieldname):
+        return
