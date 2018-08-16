@@ -145,7 +145,10 @@ class CriterionConverter(object):
 
     def get_valid_operation(self, registry, index, value, criterion):
         key = '{0}.field.{1}.operations'.format(prefix, index)
-        operations = registry.get(key)
+        try:
+            operations = registry.get(key)
+        except KeyError:
+            return
         operation = self.get_operation(value, index, criterion)
         return operation
 
@@ -191,10 +194,9 @@ class CriterionConverter(object):
                 registry,
                 index,
                 value,
-                criterion
-            )
+                criterion)
             if not operation:
-                logger.error(INVALID_OPERATION % (operation, criterion))
+                logger.warning(INVALID_OPERATION % (operation, criterion))
                 # TODO: raise an Exception?
                 continue
 
