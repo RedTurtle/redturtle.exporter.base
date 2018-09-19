@@ -121,6 +121,84 @@ class Wrapper(BaseWrapper):
         for field in fields:
             self.set_field_value(field)
 
+    def get_dexterity_fields(self):
+        """ If dexterity is used then extract fields
+        """
+        try:
+            from plone.dexterity.utils import iterSchemata
+            from zope.schema import getFieldsInOrder
+            from datetime import datetime
+            from plone.directives import form
+
+            if not form.Schema.providedBy(self.context):
+                return
+
+        except Exception as e:
+            import pdb
+            pdb.set_trace()
+
+        # get all fields for this obj
+        for schemata in iterSchemata(self.context):
+            for fieldname, field in getFieldsInOrder(schemata):
+                try:
+                    value = field.get(schemata(self.context))
+                    #value = getattr(context, name).__class__.__name__
+                except AttributeError:
+                    continue
+                if value is field.missing_value:
+                    continue
+
+                field_type = field.__class__.__name__
+
+                if field_type in ('RichText',):
+                    value = unicode(value.raw)
+
+                elif field_type in ('NamedImage',):
+                    fieldname = unicode('_datafield_' + fieldname)
+
+                    if hasattr(value, 'open'):
+                        data = value.open().read()
+                    else:
+                        data = value.data
+
+                    try:
+                        max_filesize = int(os.environ.get(
+                            'JSONIFY_MAX_FILESIZE', 20000000))
+                    except ValueError:
+                        max_filesize = 20000000
+
+                    if data and len(data) > max_filesize:
+                        continue
+
+                    import base64
+                    ctype = value.contentType
+                    size = value.getSize()
+                    dvalue = {
+                        'data': base64.b64encode(data),
+                        'size': size,
+                        'filename': value.filename or '',
+                        'content_type': ctype}
+                    value = dvalue
+
+                elif field_type in ('DateTime',):
+                    if isinstance(value, basestring):
+                        value = datetime.strptime(value, '%Y-%m-%d')
+                    if isinstance(value, datetime):
+                        value = value.date()
+                elif field_type in ('Tuple', 'List',):
+                    value = list(value)
+                else:
+                    BASIC_TYPES = (unicode, int, long,
+                                   float, bool, type(None))
+                    if type(value) in BASIC_TYPES:
+                        pass
+                    elif self.field is not None:
+                        value = unicode(value)
+                    else:
+                        raise ValueError('Unable to serialize field value')
+
+                self[unicode(fieldname)] = value
+
     def set_field_value(self, field):
         type_ = field.__class__.__name__
         fieldname = unicode(field.__name__)
