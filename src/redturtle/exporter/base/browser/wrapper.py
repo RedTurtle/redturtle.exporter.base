@@ -146,8 +146,12 @@ class Wrapper(BaseWrapper):
             self.set_siteareas_field(field=field, fieldname=fieldname)
         elif type_ == 'argumentsField':
             self.set_parerarguments_field(field=field, fieldname=fieldname)
-        else:
-            raise TypeError(
+        elif type_ == 'GroupwareStringField':
+	    return
+        elif type_ == 'LocationField':
+	    return
+	else:
+	    raise TypeError(
                 'Unknown field type for ArchetypesWrapper in {0} in {1}'.format(  # noqa
                     fieldname, self.context.absolute_url()))
 

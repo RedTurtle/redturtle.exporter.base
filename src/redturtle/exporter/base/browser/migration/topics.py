@@ -190,6 +190,7 @@ class CriterionConverter(object):
             # next criteria item?
 
             # Get the operation method.
+
             operation = self.get_valid_operation(
                 registry,
                 index,
