@@ -228,8 +228,6 @@ class Wrapper(BaseWrapper):
             return
         elif type_ == 'LocationField':
             return
-        elif type_ == 'FileInnerContentField':
-            self.set_fileInnerContent_field(field=field, fieldname=fieldname)
         else:
             raise TypeError(
                     'Unknown field type for ArchetypesWrapper in {0} in {1}'.format(  # noqa
@@ -367,7 +365,4 @@ class Wrapper(BaseWrapper):
         self[fieldname] = [x.Title for x in siteareas]
 
     def set_parerarguments_field(self, field, fieldname):
-        return
-
-    def set_fileInnerContent_field(self, field, fieldname):
         return
