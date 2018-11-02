@@ -225,13 +225,15 @@ class Wrapper(BaseWrapper):
         elif type_ == 'argumentsField':
             self.set_parerarguments_field(field=field, fieldname=fieldname)
         elif type_ == 'GroupwareStringField':
-	    return
+            return
         elif type_ == 'LocationField':
-	    return
-	else:
-	    raise TypeError(
-                'Unknown field type for ArchetypesWrapper in {0} in {1}'.format(  # noqa
-                    fieldname, self.context.absolute_url()))
+            return
+        elif type_ == 'FileInnerContentField':
+            self.set_fileInnerContent_field(field=field, fieldname=fieldname)
+        else:
+            raise TypeError(
+                    'Unknown field type for ArchetypesWrapper in {0} in {1}'.format(  # noqa
+                        fieldname, self.context.absolute_url()))
 
     def set_standard_fields(self, field, fieldname, type_):
         try:
@@ -365,4 +367,7 @@ class Wrapper(BaseWrapper):
         self[fieldname] = [x.Title for x in siteareas]
 
     def set_parerarguments_field(self, field, fieldname):
+        return
+
+    def set_fileInnerContent_field(self, field, fieldname):
         return
