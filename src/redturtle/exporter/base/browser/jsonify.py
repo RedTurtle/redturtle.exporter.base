@@ -105,50 +105,6 @@ def get_taxonomy_object(self, context_dict):
         del context_dict['siteAreas']
 
 
-class GetPortletsData(object):
-
-    def get_portlets_data(self):
-        """
-        """
-        path = "/".join(self.context.getPhysicalPath())
-        portal = api.portal.get()
-        target = '%s/inspect-portlets' % path
-        try:
-            view = portal.unrestrictedTraverse('%s/inspect-portlets' % path)
-        except KeyError:
-            view = None
-        portlets_data = []
-        if view is not None:
-            # BBB: we call inspector 1.0.0 view
-            view.results = {}
-            view.update_results(view.context)
-            data_dict = view.results.get(path, {})
-
-            for key, values_list in data_dict.iteritems():
-                for value in values_list:
-                    tmp = value[0].replace('<', '').replace('>', '').split('++')  # noqa
-                    p_key = '++{0}++{1}'.format(tmp[1], tmp[2])
-                    target = '{0}/{1}'.format(
-                        "/".join(self.context.getPhysicalPath()),
-                        p_key
-                    )
-                    portlet = portal.unrestrictedTraverse(target)
-                    config_dict = portlet.__dict__.copy()
-                    for k in portlet.__dict__.keys():
-                        if not isinstance(config_dict[k], str) and \
-                                not isinstance(config_dict[k], bool) and \
-                                not isinstance(config_dict[k], int) and \
-                                not isinstance(config_dict[k], unicode):
-                            del config_dict[k]
-                    portlets_data.append({
-                        p_key: {
-                            'type': value[1],
-                            'config': config_dict
-                        }
-                    })
-        return portlets_data
-
-
 class BaseGetItem(BaseGetItemView, GetPortletsData):
 
     def __call__(self):
@@ -207,7 +163,6 @@ class GetItemEvent(BaseGetItem):
         """
         try:
             context_dict = super(GetItemEvent, self).__call__()
-            context_dict.update({'portlets_data': self.get_portlets_data()})
 
             context_dict.update({
                 'start': context_dict.get('startDate')})
@@ -237,7 +192,6 @@ class GetItemDocument(BaseGetItem):
         """
         try:
             context_dict = super(GetItemDocument, self).__call__()
-            context_dict.update({'portlets_data': self.get_portlets_data()})
             context_dict.update({
                 'table_of_contents': self.context.tableContents})
 
@@ -285,7 +239,6 @@ class GetItemTopic(BaseGetItem):
             sort_on = mt._collection_sort_on
             sort_reversed = mt._collection_sort_reversed
             context_dict = super(GetItemTopic, self).__call__()
-            context_dict.update({'portlets_data': self.get_portlets_data()})
             context_dict.update({'query': criterions_list})
             context_dict.update({'sort_on': sort_on})
             context_dict.update({'sort_reversed': sort_reversed})
@@ -326,7 +279,6 @@ class GetItemCollection(BaseGetItem):
                 fixed_query.append(tmp_dict)
 
             context_dict.update({'query': fixed_query})
-            context_dict.update({'portlets_data': self.get_portlets_data()})
 
         except Exception, e:
             tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))

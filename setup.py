@@ -48,7 +48,6 @@ setup(
         'Products.GenericSetup',
         'setuptools',
         'ploneorg.jsonify',
-        'redturtle.portlets.inspector',
     ],
     extras_require={
         'test': [
