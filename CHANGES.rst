@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-0.1.1 (unreleased)
+0.1.1 (2019-01-16)
 ------------------
 
 - Removed redturtle.portlets.inspector dependency.
