@@ -5,7 +5,8 @@ Changelog
 0.1.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fixed dependency in function call.
+  [daniele]
 
 
 0.1.1 (2019-01-16)
