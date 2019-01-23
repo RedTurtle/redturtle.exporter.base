@@ -105,7 +105,7 @@ def get_taxonomy_object(self, context_dict):
         del context_dict['siteAreas']
 
 
-class BaseGetItem(BaseGetItemView, GetPortletsData):
+class BaseGetItem(BaseGetItemView):
 
     def __call__(self):
         context_dict = Wrapper(self.context)
