@@ -269,6 +269,8 @@ class Wrapper(BaseWrapper):
     def set_date_field(self, field, fieldname, type_):
         value = self._get_at_field_value(field)
         if value:
+            if value.year() < 1900:
+                value = DateTime.DateTime('1900')
             value = DateTime.DateTime.strftime(value, '%Y-%m-%d %H:%M')
             # value = str(self._get_at_field_value(field))
             # value = self._get_at_field_value(field).ISO8601()
