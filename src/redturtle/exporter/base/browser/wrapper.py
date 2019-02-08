@@ -134,9 +134,10 @@ class Wrapper(BaseWrapper):
                 return
 
         except Exception as e:
-            import pdb
-            pdb.set_trace()
-
+            #import pdb
+            #pdb.set_trace()
+            pass
+            
         # get all fields for this obj
         for schemata in iterSchemata(self.context):
             for fieldname, field in getFieldsInOrder(schemata):
