@@ -36,6 +36,7 @@ BLOB_FIELDS = [
     'FileField',
     'AttachmentField',
     'ExtensionBlobField',
+    'ExtensionBlobImageField',
     'BlobField',
 ]
 
@@ -134,10 +135,8 @@ class Wrapper(BaseWrapper):
                 return
 
         except Exception as e:
-            #import pdb
-            #pdb.set_trace()
             pass
-            
+
         # get all fields for this obj
         for schemata in iterSchemata(self.context):
             for fieldname, field in getFieldsInOrder(schemata):
@@ -212,13 +211,10 @@ class Wrapper(BaseWrapper):
                 fieldname=fieldname,
                 type_=type_,
             )
-
         elif type_ in ['DateTimeField']:
             self.set_date_field(field=field, fieldname=fieldname, type_=type_)
-
         elif type_ in BLOB_FIELDS:
             self.set_blob_field(field=field, fieldname=fieldname, type_=type_)
-
         elif type_ in ['ReferenceField']:
             self.set_raw_field(field=field, fieldname=fieldname, type_=type_)
         elif type_ == 'siteAreasField':
