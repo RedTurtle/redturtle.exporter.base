@@ -7,6 +7,8 @@ Changelog
 
 - Fixed dependency in function call.
   [daniele]
+- Added option for return object in order
+  [eikichi18]
 
 
 0.1.1 (2019-01-16)
