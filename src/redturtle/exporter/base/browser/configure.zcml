@@ -13,6 +13,13 @@
       layer="redturtle.exporter.base.interfaces.IRedTurtleExporterBaseLayer"
       /> -->
 
+<browser:page
+    for="*"
+    name="rt_get_catalog_results"
+    class=".jsonify.GetCatalogResults"
+    permission="zope2.ViewManagementScreens"
+    />
+
   <browser:page
       for="Products.ATContentTypes.interfaces.interfaces.IATContentType"
       name="get_item"

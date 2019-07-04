@@ -5,8 +5,14 @@ from DateTime import DateTime
 from plone import api
 from plone.app.discussion.interfaces import IConversation
 from ploneorg.jsonify.jsonify import GetItem as BaseGetItemView
+from ploneorg.jsonify.jsonify import GetCatalogResults as BaseGetCatalogResults
 from Products.CMFCore.interfaces import ISiteRoot
 
+# navigation tree
+from Products.CMFCore.interfaces import IFolderish
+from Acquisition import aq_parent
+
+import base64
 import json
 import pprint
 import sys
@@ -323,3 +329,74 @@ class GetItemImage(BaseGetItem):
             return 'ERROR: exception wrapping object: %s\n%s' % (str(e), tb)
 
         return get_json_object(self, context_dict)
+
+
+class GetCatalogResults(BaseGetCatalogResults):
+
+    items = []
+    item_paths = []
+
+    def flatten(self, children):
+        """ Recursively flatten the tree """
+        for obj in children:
+            self.items.append(obj["path"])
+            children = obj.get("children", None)
+            if children:
+                self.flatten(children)
+
+    def explain_tree(self, root):
+
+        results = []
+
+        children = root.listFolderContents()
+        for obj in children:
+            path = obj.absolute_url_path() if not getattr(obj, "getObject", None) else obj.getPath() # noqa
+            obj_dict = {'path': path, 'children': []}
+            if IFolderish.providedBy(obj):
+                obj_dict['children'] = self.explain_tree(obj)
+
+            results.append(obj_dict)
+
+        return results
+
+    def __call__(self):
+
+        self.items = []
+
+        if not hasattr(self.context.aq_base, 'unrestrictedSearchResults'):
+            return
+        query = self.request.form.get('catalog_query', None)
+        if query:
+            query = eval(base64.b64decode(query), {"__builtins__": None}, {})
+        query.update({'sort_on': 'getObjPositionInParent'})
+
+        self.request.response.setHeader('Content-Type', 'application/json')
+
+        # path it is necessary for now in OrderedTree mode
+        if query.get('path', None) and query.get('mode', None):
+
+            if query['mode'] == 'OrderedTree':
+                root = api.content.get(path=query['path'])
+
+                if not root:
+                    return json.dumps(self.item_paths)
+
+                if not IFolderish.providedBy(root):
+                    self.item_paths.append(root.absolute_url_path())
+                    return self.item_paths
+
+                path = root.absolute_url_path() if not getattr(root, "getObject", None) else root.getPath() # noqa
+                tree = {'path': path, 'children': []}
+                tree['children'].extend(self.explain_tree(root))
+
+                self.items.append(tree['path'])
+
+                self.flatten(tree['children'])
+                item_paths = self.items
+                return json.dumps(item_paths)
+            
+            # it is not necessary in plone query
+            del query['mode']
+
+        item_paths = [item.getPath() for item in self.context.unrestrictedSearchResults(**query)] # noqa
+        return json.dumps(item_paths)
