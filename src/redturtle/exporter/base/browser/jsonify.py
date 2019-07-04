@@ -4,13 +4,11 @@ from .wrapper import Wrapper
 from DateTime import DateTime
 from plone import api
 from plone.app.discussion.interfaces import IConversation
-from ploneorg.jsonify.jsonify import GetItem as BaseGetItemView
-from ploneorg.jsonify.jsonify import GetCatalogResults as BaseGetCatalogResults
 from Products.CMFCore.interfaces import ISiteRoot
+from Products.Five.browser import BrowserView
 
 # navigation tree
 from Products.CMFCore.interfaces import IFolderish
-from Acquisition import aq_parent
 
 import base64
 import json
@@ -111,9 +109,42 @@ def get_taxonomy_object(self, context_dict):
         del context_dict['siteAreas']
 
 
+class BaseGetItemView(BrowserView):
+
+    def __call__(self):
+        try:
+            context_dict = Wrapper(self)
+        except Exception, e:
+            etype = sys.exc_info()[0]
+            tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
+            return 'ERROR: exception wrapping object: %s: %s\n%s' % (
+                etype, str(e), tb
+            )
+
+        passed = False
+        while not passed:
+            try:
+                JSON = json.dumps(context_dict)
+                passed = True
+            except Exception, error:
+                if "serializable" in str(error):
+                    key, context_dict = _clean_dict(context_dict, error)
+                    pprint.pprint(
+                        'Not serializable member %s of %s ignored' % (
+                            key, repr(self)
+                        )
+                    )
+                    passed = False
+                else:
+                    return ('ERROR: Unknown error serializing object: %s' % error)
+        self.REQUEST.response.setHeader("Content-type", "application/json")
+        return JSON
+
+
 class BaseGetItem(BaseGetItemView):
 
     def __call__(self):
+
         context_dict = Wrapper(self.context)
 
         # funzioni comuni a tutti i get_item
@@ -331,7 +362,7 @@ class GetItemImage(BaseGetItem):
         return get_json_object(self, context_dict)
 
 
-class GetCatalogResults(BaseGetCatalogResults):
+class GetCatalogResults(object):
 
     items = []
     item_paths = []
