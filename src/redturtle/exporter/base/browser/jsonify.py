@@ -9,6 +9,7 @@ from Products.Five.browser import BrowserView
 
 # navigation tree
 from Products.CMFCore.interfaces import IFolderish
+from Products.CMFCore.interfaces import ISiteRoot
 
 import base64
 import json
@@ -370,8 +371,10 @@ class GetCatalogResults(object):
     def flatten(self, children):
         """ Recursively flatten the tree """
         for obj in children:
-            self.items.append(obj["path"])
-            children = obj.get("children", None)
+            if obj['path']:
+                self.items.append(obj['path']) 
+
+            children = obj.get('children', None)
             if children:
                 self.flatten(children)
 
@@ -412,15 +415,16 @@ class GetCatalogResults(object):
                 if not root:
                     return json.dumps(self.item_paths)
 
-                if not IFolderish.providedBy(root):
-                    self.item_paths.append(root.absolute_url_path())
-                    return self.item_paths
+                # if not IFolderish.providedBy(root):
+                #     self.items.append(root.absolute_url_path())
+                #     return json.dumps(self.items)
 
                 path = root.absolute_url_path() if not getattr(root, "getObject", None) else root.getPath() # noqa
-                tree = {'path': path, 'children': []}
+                tree = {'path': path, 'children': []} if not ISiteRoot.providedBy(root) else {'children': []} # noqa
                 tree['children'].extend(self.explain_tree(root))
 
-                self.items.append(tree['path'])
+                if tree.get('path', None):
+                    self.items.append(tree['path'])
 
                 self.flatten(tree['children'])
                 item_paths = self.items
