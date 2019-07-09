@@ -8,6 +8,7 @@ Changelog
 - Fixed dependency in function call.
   [daniele]
 - Added option for return object in order
+- Fixed mapping for collection object
   [eikichi18]
 
 

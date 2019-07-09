@@ -322,6 +322,9 @@ class GetItemCollection(BaseGetItem):
             tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
             return 'ERROR: exception wrapping object: %s\n%s' % (str(e), tb)
 
+        context_dict['item_count'] = context_dict.get('limit', 30)
+        del context_dict['limit']
+
         return get_json_object(self, context_dict)
 
 
