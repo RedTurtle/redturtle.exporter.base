@@ -154,6 +154,9 @@ class GetItemLink(BaseGetItem):
         """
         try:
             context_dict = super(GetItemLink, self).__call__()
+            if not context_dict.get('title'):
+                context_dict['title'] = context_dict.get('id')
+
             return get_json_object(self, context_dict)
 
         except Exception, e:
