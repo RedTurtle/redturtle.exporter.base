@@ -9,6 +9,8 @@ Changelog
   [daniele]
 - Added option for return object in order
   [eikichi18]
+- using id when title is missing for Link objects
+  [daniele]
 
 
 0.1.1 (2019-01-16)
