@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-0.1.2 (unreleased)
+0.1.2 (2019-09-18)
 ------------------
 
 - Fixed dependency in function call.
