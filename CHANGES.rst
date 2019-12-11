@@ -14,6 +14,7 @@ Changelog
 - Fixed dependency in function call.
   [daniele]
 - Added option for return object in order
+- Fixed mapping for collection object
   [eikichi18]
 - using id when title is missing for Link objects
   [daniele]

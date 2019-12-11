@@ -47,7 +47,7 @@ setup(
         'plone.api',
         'Products.GenericSetup',
         'setuptools',
-        'ploneorg.jsonify',
+        'collective.jsonify'
     ],
     extras_require={
         'test': [
