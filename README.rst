@@ -3,8 +3,10 @@
    This text does not appear on pypi or github. It is a comment.
 
 =======================
-redturtle.exporter.base
+Redturtle Exporter base
 =======================
+
+.. image:: https://github.com/RedTurtle/redturtle.exporter.base/workflows/Tests/badge.svg
 
 Tell me what your product does
 
