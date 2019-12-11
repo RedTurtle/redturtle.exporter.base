@@ -12,7 +12,7 @@ import base64
 import json
 import logging
 
-logger = logging.get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def _clean_dict(dct, error):
