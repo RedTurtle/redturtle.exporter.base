@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
-from .migration.topics import TopicMigrator
-from .wrapper import Wrapper
+# from .migration.topics import TopicMigrator
+from redturtle.exporter.base.browser.wrapper import Wrapper
 from DateTime import DateTime
 from plone import api
 from plone.app.discussion.interfaces import IConversation
 from Products.CMFCore.interfaces import ISiteRoot
 from Products.Five.browser import BrowserView
-
-# navigation tree
 from Products.CMFCore.interfaces import IFolderish
-from Products.CMFCore.interfaces import ISiteRoot
 
 import base64
 import json
