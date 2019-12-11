@@ -82,4 +82,3 @@ class WrapperTest(unittest.TestCase):
         self.assertEqual(
             result['_defaultitem']['title'], self.document2.Title()
         )
-

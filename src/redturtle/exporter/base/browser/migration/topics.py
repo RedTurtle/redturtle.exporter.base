@@ -54,14 +54,16 @@ class CriterionConverter(object):
             logger.warn(
                 'Index {0} is no criterion index. Registry gives '
                 'KeyError: {1}. Try inspecting portal_atct...'.format(
-                    index, key)
+                    index, key
+                )
             )
             try:
-                index_obj = api.portal.get().portal_atct.getIndex(index)
+                api.portal.get().portal_atct.getIndex(index)
             except KeyError:
                 logger.error(
                     'Index {0} is no criterion index. Giveup, sorry.'.format(
-                        index)
+                        index
+                    )
                 )
                 return False
         return True
@@ -77,7 +79,8 @@ class CriterionConverter(object):
             logger.warn(
                 'Index {0} is no criterion index. Registry gives '
                 'KeyError: {1}. Try inspecting portal_atct...'.format(
-                    index, key)
+                    index, key
+                )
             )
             try:
                 index_obj = api.portal.get().portal_atct.getIndex(index)
@@ -85,7 +88,8 @@ class CriterionConverter(object):
             except KeyError:
                 logger.error(
                     'Index {0} is no criterion index. Giveup, sorry.'.format(
-                        index)
+                        index
+                    )
                 )
                 return False
         logger.warn('Index %s is not enabled as criterion index. ', index)
@@ -136,9 +140,7 @@ class CriterionConverter(object):
             resolve(op_function_name)
         except ImportError:
             logger.error(
-                'ImportError for operation %r: %s',
-                operation,
-                op_function_name,
+                'ImportError for operation %r: %s', operation, op_function_name
             )
             return False
         return True
@@ -162,8 +164,7 @@ class CriterionConverter(object):
             return operation
 
     def add_to_formquery(self, formquery, index, operation, query_value):
-        row = {'i': index,
-               'o': operation}
+        row = {'i': index, 'o': operation}
         if query_value is not None:
             row['v'] = query_value
         formquery.append(row)
@@ -192,10 +193,8 @@ class CriterionConverter(object):
             # Get the operation method.
 
             operation = self.get_valid_operation(
-                registry,
-                index,
-                value,
-                criterion)
+                registry, index, value, criterion
+            )
             if not operation:
                 logger.warning(INVALID_OPERATION % (operation, criterion))
                 # TODO: raise an Exception?
@@ -257,20 +256,25 @@ class ATDateCriteriaConverter(CriterionConverter):
 
         def add_row(operation, value=None):
             if operation not in operations:
-                logger.warn('INVALID_OPERATION {0} for Criterion {1}'.format(
-                    operation, criterion))
+                logger.warn(
+                    'INVALID_OPERATION {0} for Criterion {1}'.format(
+                        operation, criterion
+                    )
+                )
                 pass
                 # TODO just ignore it? Commented, must be handled better
                 # raise ValueError(INVALID_OPERATION % (operation, criterion))
             if not self.is_operation_valid(registry, operation):
-                logger.warn('INVALID_OPERATION {0} for Criterion {1}'.format(
-                    operation, criterion))
+                logger.warn(
+                    'INVALID_OPERATION {0} for Criterion {1}'.format(
+                        operation, criterion
+                    )
+                )
                 pass
                 # just ignore it? Commented, must be handled better
                 # raise ValueError(INVALID_OPERATION % (operation, criterion))
             # Add a row to the form query.
-            row = {'i': field,
-                   'o': operation}
+            row = {'i': field, 'o': operation}
             if value is not None:
                 row['v'] = value
             formquery.append(row)
@@ -287,8 +291,10 @@ class ATDateCriteriaConverter(CriterionConverter):
             return
         if operation == 'more':
             if value != 0:
-                new_operation = ('{0}.operation.date.'
-                                 'largerThanRelativeDate'.format(prefix))
+                new_operation = (
+                    '{0}.operation.date.'
+                    'largerThanRelativeDate'.format(prefix)
+                )
                 add_row(new_operation, value)
                 return
             else:
@@ -297,8 +303,9 @@ class ATDateCriteriaConverter(CriterionConverter):
                 return
         if operation == 'less':
             if value != 0:
-                new_operation = ('{0}.operation.date.'
-                                 'lessThanRelativeDate'.format(prefix))
+                new_operation = (
+                    '{0}.operation.date.' 'lessThanRelativeDate'.format(prefix)
+                )
                 add_row(new_operation, value)
                 return
             else:
@@ -338,10 +345,15 @@ class ATSelectionCriterionConverter(CriterionConverter):
 
     def get_query_value(self, value, index, criterion):
         values = value['query']
-        if value.get('operator') == 'and' and len(values) > 1 and \
-                index != 'Subject':
-            logger.warn("Cannot handle selection operator 'and'. Using 'or'. "
-                        "%r", value)
+        if (
+            value.get('operator') == 'and'
+            and len(values) > 1  # noqa
+            and index != 'Subject'  # noqa
+        ):
+            logger.warn(
+                "Cannot handle selection operator 'and'. Using 'or'. " "%r",
+                value,
+            )
 
         # Special handling for portal_type=Topic.
         if index == 'portal_type' and 'Topic' in values:
@@ -376,22 +388,22 @@ class ATPathCriterionConverter(CriterionConverter):
             for index, path in enumerate(raw):
                 raw[index] = path + '::1'
         else:
-            raw = map(lambda x: api.content.get(
-                UID=x).absolute_url_path(), raw) if raw else []
+            raw = (
+                map(lambda x: api.content.get(UID=x).absolute_url_path(), raw)
+                if raw
+                else []
+            )
         return raw
 
     def add_to_formquery(self, formquery, index, operation, query_value):
         if query_value is None:
             return
         for value in query_value:
-            row = {'i': index,
-                   'o': operation,
-                   'v': value}
+            row = {'i': index, 'o': operation, 'v': value}
             formquery.append(row)
 
 
 class ATBooleanCriterionConverter(CriterionConverter):
-
     def get_operation(self, value, index, criterion):
         # Get dotted operation method.
         # value is one of these beauties:
@@ -427,14 +439,14 @@ class ATBooleanCriterionConverter(CriterionConverter):
             self.is_index_enabled(registry, fieldname)
             # Get the operation method.
             operation = self.get_valid_operation(
-                registry, fieldname, value, criterion)
+                registry, fieldname, value, criterion
+            )
             if not operation:
                 logger.error(INVALID_OPERATION % (operation, criterion))
                 # TODO: raise an Exception?
                 continue
             # Add a row to the form query.
-            row = {'i': index,
-                   'o': operation}
+            row = {'i': index, 'o': operation}
             formquery.append(row)
 
 
@@ -486,8 +498,7 @@ class ATSimpleIntCriterionConverter(CriterionConverter):
             code = 'lessThan'
         elif direction == 'min:max':
             logger.warn(
-                'min:max direction not supported for integers. %r',
-                value,
+                'min:max direction not supported for integers. %r', value
             )
             return
         else:
@@ -502,12 +513,13 @@ class ATSimpleIntCriterionConverter(CriterionConverter):
         return value['query']
 
 
-class TopicMigrator():
+class TopicMigrator:
     """Migrate Topics to Collections. Existing subtopics will be lost.
 
     The only difference to the migration below is the base-class
     (InplaceCMFItemMigrator instead of InplaceCMFFolderMigrator).
     """
+
     src_portal_type = 'Topic'
     src_meta_type = 'ATTopic'
     dst_portal_type = dst_meta_type = 'Collection'

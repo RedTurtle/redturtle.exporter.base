@@ -32,12 +32,12 @@
       permission="zope2.ViewManagementScreens"
       />
 
-  <browser:page
+  <!-- <browser:page
       for="Products.ATContentTypes.interfaces.topic.IATTopic"
       name="get_item"
       class=".jsonify.GetItemTopic"
       permission="zope2.ViewManagementScreens"
-      />
+      /> -->
 
   <browser:page
       for="Products.ATContentTypes.interfaces.link.IATLink"

@@ -47,8 +47,8 @@ class Wrapper(dict):
             )
             try:
                 self.charset = (
-                    self.portal.portal_properties.site_properties.default_charset
-                )  # noqa
+                    self.portal.portal_properties.site_properties.default_charset  # noqa
+                )
             except AttributeError:
                 pass
         except ImportError:
@@ -82,7 +82,7 @@ class Wrapper(dict):
         for encoding in test_encodings:
             try:
                 return s.decode(encoding)
-            except:
+            except Exception:
                 pass
         return s.decode(test_encodings[0], "ignore")
 
@@ -140,7 +140,7 @@ class Wrapper(dict):
             # from plone.uuid.interfaces import IUUID
             from zope.schema import getFieldsInOrder
             from datetime import date
-        except:
+        except Exception:
             return
 
         # get all fields for this obj
@@ -252,8 +252,8 @@ class Wrapper(dict):
         ]
         operator_mapping = {
             # old -> new
-            u"plone.app.querystring.operation.selection.is": u"plone.app.querystring.operation.selection.any",
-            u"plone.app.querystring.operation.string.is": u"plone.app.querystring.operation.selection.any",
+            u"plone.app.querystring.operation.selection.is": u"plone.app.querystring.operation.selection.any",  # noqa
+            u"plone.app.querystring.operation.string.is": u"plone.app.querystring.operation.selection.any",  # noqa
         }
         fixed_querystring = []
         for querystring in query or []:
@@ -264,7 +264,7 @@ class Wrapper(dict):
                 for old_operator, new_operator in operator_mapping.items():
                     if querystring["o"] == old_operator:
                         querystring["o"] = new_operator
-            if not "v" in querystring:
+            if "v" not in querystring:
                 fixed_querystring.append(querystring)
                 continue
             # fix DateTime representation
@@ -289,12 +289,12 @@ class Wrapper(dict):
 
             if not self.providedBy(IBaseObject, self.context):
                 return
-        except:
+        except Exception:
             return
 
         try:
             from archetypes.schemaextender.interfaces import IExtensionField
-        except:
+        except Exception:
             IExtensionField = None
 
         import base64
@@ -317,7 +317,7 @@ class Wrapper(dict):
                         for it in field.__class__.__bases__
                         if not IExtensionField.implementedBy(it)
                     ][0]
-            except:
+            except Exception:
                 pass
 
             fieldnames = [
@@ -499,7 +499,7 @@ class Wrapper(dict):
 
             if not self.providedBy(IReferenceable, self.context):
                 return
-        except:
+        except Exception:
             return
 
         self["_atrefs"] = {}
@@ -580,10 +580,10 @@ class Wrapper(dict):
                 if typ == "string" and isinstance(val, str):
                     val = self.decode(val)
                 if (
-                    isinstance(val, DateTime)
-                    or isinstance(val, datetime.time)
-                    or isinstance(val, datetime.datetime)
-                    or isinstance(val, datetime.date)
+                    isinstance(val, DateTime)  # noqa
+                    or isinstance(val, datetime.time)  # noqa
+                    or isinstance(val, datetime.datetime)  # noqa
+                    or isinstance(val, datetime.date)  # noqa
                 ):
                     val = six.text_type(val)
                 self["_properties"].append(
@@ -593,7 +593,7 @@ class Wrapper(dict):
     def get_directly_provided_interfaces(self):
         try:
             from zope.interface import directlyProvidedBy
-        except:
+        except Exception:
             return
         self["_directly_provided"] = [
             it.__identifier__ for it in directlyProvidedBy(self.context)
@@ -611,7 +611,7 @@ class Wrapper(dict):
             if isinstance(self.context, PortalFolder):
                 self["_defaultpage"] = "index_html"
                 return
-        except:
+        except Exception:
             pass
 
         _default_item = None
@@ -631,7 +631,7 @@ class Wrapper(dict):
         _layout = ""
         try:
             _layout = self.context.getLayout()
-        except:
+        except Exception:
             pass
 
         if _default and _layout and _default == _layout:
@@ -656,7 +656,7 @@ class Wrapper(dict):
         """
         try:
             self["_content_type"] = self.context.Format()
-        except:
+        except Exception:
             pass
 
     def get_local_roles(self):
@@ -711,11 +711,11 @@ class Wrapper(dict):
             try:
                 try:
                     self["_owner"] = self.context.getWrappedOwner().getId()
-                except:
+                except Exception:
                     self["_owner"] = self.context.getOwner(info=1).getId()
-            except:
+            except Exception:
                 self["_owner"] = self.context.getOwner(info=1)[1]
-        except:
+        except Exception:
             pass
 
     def get_workflowhistory(self):
@@ -774,13 +774,15 @@ class Wrapper(dict):
 
         for lang in translations:
             trans_obj = "/".join(translations[lang][0].getPhysicalPath())[
-                len(self.portal_path) :
+                len(self.portal_path) :  # noqa
             ]
             self["_translations"][lang] = trans_obj
 
         self["_translationOf"] = "/".join(
             self.context.getCanonical().getPhysicalPath()
-        )[len(self.portal_path) :]
+        )[
+            len(self.portal_path) :  # noqa
+        ]
         self["_canonicalTranslation"] = self.context.isCanonical()
 
     def _is_cmf_only_obj(self):
@@ -794,21 +796,21 @@ class Wrapper(dict):
 
             if self.providedBy(IATContentType, context):
                 return False
-        except:
+        except Exception:
             pass
         try:
             from Products.ATContentTypes.interfaces import IATContentType
 
             if self.providedBy(IATContentType, context):
                 return False
-        except:
+        except Exception:
             pass
         try:
             from plone.dexterity.interfaces import IDexterityContent
 
             if self.providedBy(IDexterityContent, context):
                 return False
-        except:
+        except Exception:
             pass
         try:
             from Products.CMFCore.DynamicType import DynamicType
@@ -816,7 +818,7 @@ class Wrapper(dict):
             # restrict this to non archetypes/dexterity
             if isinstance(context, DynamicType):
                 return True
-        except:
+        except Exception:
             pass
         return False
 
@@ -936,7 +938,7 @@ class Wrapper(dict):
             if not isinstance(value, str):
                 try:
                     from base64 import b64encode
-                except:
+                except Exception:
                     # Legacy version of base64 (eg on Python 2.2)
                     from base64 import encodestring as b64encode
                 if isinstance(value.data, str):
@@ -1005,9 +1007,9 @@ class Wrapper(dict):
             ):
                 data = history_metadata.retrieve(i, countPurged=False)
                 meta = data["metadata"]["sys_metadata"].copy()
-                version_id = history_metadata.getVersionId(
-                    i, countPurged=False
-                )
+                # version_id = history_metadata.getVersionId(
+                #     i, countPurged=False
+                # )
                 try:
                     dateaux = datetime.datetime.fromtimestamp(
                         meta.get("timestamp", 0)
@@ -1015,7 +1017,7 @@ class Wrapper(dict):
                     meta["timestamp"] = dateaux.strftime(
                         "%Y/%m/%d %H:%M:%S GMT"
                     )
-                except Exception as ex:
+                except Exception:
                     meta["timestamp"] = ""
                 history_list.append(meta)
             self["_history"] = history_list
@@ -1040,9 +1042,9 @@ class Wrapper(dict):
             if redirects:
                 # remove site name (e.g. "/Plone") from redirect paths
                 self["_old_paths"] = [
-                    r[len(self.portal_path) :] for r in redirects
+                    r[len(self.portal_path) :] for r in redirects  # noqa
                 ]
-        except:  # noqa: E722
+        except:  # noqa: E72 Exception2
             pass
 
     # def get_convert_topic_query(self):

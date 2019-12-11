@@ -10,9 +10,9 @@ from Products.CMFCore.interfaces import IFolderish
 
 import base64
 import json
-import pprint
-import sys
-import traceback
+import logging
+
+logger = logging.get_logger(__name__)
 
 
 def _clean_dict(dct, error):
@@ -34,7 +34,7 @@ def get_json_object(self, context_dict):
         except Exception, error:
             if 'serializable' in str(error):
                 key, context_dict = _clean_dict(context_dict, error)
-                pprint.pprint(
+                logger.error(
                     'Not serializable member {0} of {1} ignored'.format(
                         key, repr(self)))
                 passed = False
@@ -110,14 +110,7 @@ def get_taxonomy_object(self, context_dict):
 class BaseGetItemView(BrowserView):
 
     def __call__(self):
-        try:
-            context_dict = Wrapper(self)
-        except Exception, e:
-            etype = sys.exc_info()[0]
-            tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
-            return 'ERROR: exception wrapping object: %s: %s\n%s' % (
-                etype, str(e), tb
-            )
+        context_dict = Wrapper(self)
 
         passed = False
         while not passed:
@@ -127,14 +120,14 @@ class BaseGetItemView(BrowserView):
             except Exception, error:
                 if "serializable" in str(error):
                     key, context_dict = _clean_dict(context_dict, error)
-                    pprint.pprint(
+                    logger.error(
                         'Not serializable member %s of %s ignored' % (
                             key, repr(self)
                         )
                     )
                     passed = False
                 else:
-                    return ('ERROR: Unknown error serializing object: %s' % error)
+                    return ('ERROR: Unknown error serializing object: {}'.format(error))  # noqa
         self.REQUEST.response.setHeader("Content-type", "application/json")
         return JSON
 
@@ -161,18 +154,13 @@ class GetItem(BaseGetItem):
         """
         Generic content-type
         """
-        try:
-            context_dict = super(GetItem, self).__call__()
-            if context_dict.get('_defaultpage'):
-                context_dict.update({
-                    'default_page': context_dict.get('_defaultpage')
-                })
+        context_dict = super(GetItem, self).__call__()
+        if context_dict.get('_defaultpage'):
+            context_dict.update({
+                'default_page': context_dict.get('_defaultpage')
+            })
 
-            return get_json_object(self, context_dict)
-
-        except Exception, e:
-            tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
-            return 'ERROR: exception wrapping object: %s\n%s' % (str(e), tb)
+        return get_json_object(self, context_dict)
 
 
 class GetItemLink(BaseGetItem):
@@ -181,16 +169,11 @@ class GetItemLink(BaseGetItem):
         """
         Generic content-type
         """
-        try:
-            context_dict = super(GetItemLink, self).__call__()
-            if not context_dict.get('title'):
-                context_dict['title'] = context_dict.get('id')
+        context_dict = super(GetItemLink, self).__call__()
+        if not context_dict.get('title'):
+            context_dict['title'] = context_dict.get('id')
 
-            return get_json_object(self, context_dict)
-
-        except Exception, e:
-            tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
-            return 'ERROR: exception wrapping object: %s\n%s' % (str(e), tb)
+        return get_json_object(self, context_dict)
 
 
 class GetItemEvent(BaseGetItem):
@@ -199,27 +182,22 @@ class GetItemEvent(BaseGetItem):
         """
         Event
         """
-        try:
-            context_dict = super(GetItemEvent, self).__call__()
+        context_dict = super(GetItemEvent, self).__call__()
 
-            context_dict.update({
-                'start': context_dict.get('startDate')})
-            context_dict.update({
-                'end': context_dict.get('endDate')})
-            context_dict.update({
-                'contact_name': context_dict.get('contactName')})
-            context_dict.update({
-                'contact_email': context_dict.get('contactEmail')})
-            context_dict.update({
-                'contact_phone': context_dict.get('contactPhone')})
-            context_dict.update({
-                'event_url': context_dict.get('eventUrl')})
+        context_dict.update({
+            'start': context_dict.get('startDate')})
+        context_dict.update({
+            'end': context_dict.get('endDate')})
+        context_dict.update({
+            'contact_name': context_dict.get('contactName')})
+        context_dict.update({
+            'contact_email': context_dict.get('contactEmail')})
+        context_dict.update({
+            'contact_phone': context_dict.get('contactPhone')})
+        context_dict.update({
+            'event_url': context_dict.get('eventUrl')})
 
-            return get_json_object(self, context_dict)
-
-        except Exception, e:
-            tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
-            return 'ERROR: exception wrapping object: %s\n%s' % (str(e), tb)
+        return get_json_object(self, context_dict)
 
 
 class GetItemDocument(BaseGetItem):
@@ -228,69 +206,59 @@ class GetItemDocument(BaseGetItem):
         """
         Document
         """
-        try:
-            context_dict = super(GetItemDocument, self).__call__()
-            context_dict.update({
-                'table_of_contents': self.context.tableContents})
-
-            return get_json_object(self, context_dict)
-
-        except Exception, e:
-            tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
-            return 'ERROR: exception wrapping object: %s\n%s' % (str(e), tb)
-
-
-class GetItemTopic(BaseGetItem):
-
-    def convert_criterion(self, old_criterion):
-        pass
-
-    def __call__(self):
-        """
-        Topic
-        """
-        try:
-            mt = TopicMigrator()
-            criterions_list = mt.__call__(self.context)
-            # check format in case of date values
-            for crit_dict in criterions_list:
-                values = crit_dict.get('v')
-                if not values:
-                    continue
-                if isinstance(values, int):
-                    continue
-                try:
-                    if not any([True for x in values if isinstance(x, DateTime)]):  # noqa
-                        continue
-                except Exception:
-                    import pdb
-                    pdb.set_trace()
-
-                new_values = []
-
-                for val in values:
-                    new_values.append(val.asdatetime().isoformat())
-                if isinstance(values, tuple):
-                    new_values = tuple(new_values)
-                crit_dict.update({'v': new_values})
-
-            sort_on = mt._collection_sort_on
-            sort_reversed = mt._collection_sort_reversed
-            context_dict = super(GetItemTopic, self).__call__()
-            context_dict.update({'query': criterions_list})
-            context_dict.update({'sort_on': sort_on})
-            context_dict.update({'sort_reversed': sort_reversed})
-
-            if not context_dict.get('itemCount'):
-                context_dict.update({'item_count': '30'})
-            else:
-                context_dict.update({
-                    'item_count': context_dict.get('itemCount')})
-        except Exception, e:
-            tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
-            return 'ERROR: exception wrapping object: %s\n%s' % (str(e), tb)
+        context_dict = super(GetItemDocument, self).__call__()
+        context_dict.update({
+            'table_of_contents': self.context.tableContents})
 
         return get_json_object(self, context_dict)
+
+
+# class GetItemTopic(BaseGetItem):
+
+#     def convert_criterion(self, old_criterion):
+#         pass
+
+#     def __call__(self):
+#         """
+#         Topic
+#         """
+#         mt = TopicMigrator()
+#         criterions_list = mt.__call__(self.context)
+#         # check format in case of date values
+#         for crit_dict in criterions_list:
+#             values = crit_dict.get('v')
+#             if not values:
+#                 continue
+#             if isinstance(values, int):
+#                 continue
+#             try:
+#                 if not any([True for x in values if isinstance(x, DateTime)]):  # noqa
+#                     continue
+#             except Exception:
+#                 import pdb
+#                 pdb.set_trace()
+
+#             new_values = []
+
+#             for val in values:
+#                 new_values.append(val.asdatetime().isoformat())
+#             if isinstance(values, tuple):
+#                 new_values = tuple(new_values)
+#             crit_dict.update({'v': new_values})
+
+#         sort_on = mt._collection_sort_on
+#         sort_reversed = mt._collection_sort_reversed
+#         context_dict = super(GetItemTopic, self).__call__()
+#         context_dict.update({'query': criterions_list})
+#         context_dict.update({'sort_on': sort_on})
+#         context_dict.update({'sort_reversed': sort_reversed})
+
+#         if not context_dict.get('itemCount'):
+#             context_dict.update({'item_count': '30'})
+#         else:
+#             context_dict.update({
+#                 'item_count': context_dict.get('itemCount')})
+#         return get_json_object(self, context_dict)
 
 
 class GetItemCollection(BaseGetItem):
@@ -299,29 +267,23 @@ class GetItemCollection(BaseGetItem):
         """
         Collection
         """
-        try:
-            context_dict = super(GetItemCollection, self).__call__()
-            query = context_dict['query']
+        context_dict = super(GetItemCollection, self).__call__()
+        query = context_dict['query']
 
-            fixed_query = []
-            for el in query:
-                tmp_dict = {}
-                for key in el.keys():
-                    if not isinstance(el[key], basestring):
-                        tmp_lst = []
-                        for item in el[key]:
-                            tmp_lst.append(unicode(item))
-                        tmp_dict.update({unicode(key): tmp_lst})
-                    else:
-                        tmp_dict.update({unicode(key): unicode(el[key])})
-                fixed_query.append(tmp_dict)
+        fixed_query = []
+        for el in query:
+            tmp_dict = {}
+            for key in el.keys():
+                if not isinstance(el[key], basestring):
+                    tmp_lst = []
+                    for item in el[key]:
+                        tmp_lst.append(unicode(item))
+                    tmp_dict.update({unicode(key): tmp_lst})
+                else:
+                    tmp_dict.update({unicode(key): unicode(el[key])})
+            fixed_query.append(tmp_dict)
 
-            context_dict.update({'query': fixed_query})
-
-        except Exception, e:
-            tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
-            return 'ERROR: exception wrapping object: %s\n%s' % (str(e), tb)
-
+        context_dict.update({'query': fixed_query})
         context_dict['item_count'] = context_dict.get('limit', 30)
         del context_dict['limit']
 
@@ -335,15 +297,9 @@ class GetItemFile(BaseGetItem):
         Files from Plone 3 could have title not set.
         In this case, set it with the id
         """
-        try:
-            context_dict = super(GetItemFile, self).__call__()
-            if not context_dict.get('title'):
-                context_dict['title'] = context_dict.get('id')
-
-        except Exception, e:
-            tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
-            return 'ERROR: exception wrapping object: %s\n%s' % (str(e), tb)
-
+        context_dict = super(GetItemFile, self).__call__()
+        if not context_dict.get('title'):
+            context_dict['title'] = context_dict.get('id')
         return get_json_object(self, context_dict)
 
 
@@ -354,15 +310,9 @@ class GetItemImage(BaseGetItem):
         Images from Plone 3 could have title not set.
         In this case, set it with the id
         """
-        try:
-            context_dict = super(GetItemImage, self).__call__()
-            if not context_dict.get('title'):
-                context_dict['title'] = context_dict.get('id')
-
-        except Exception, e:
-            tb = pprint.pformat(traceback.format_tb(sys.exc_info()[2]))
-            return 'ERROR: exception wrapping object: %s\n%s' % (str(e), tb)
-
+        context_dict = super(GetItemImage, self).__call__()
+        if not context_dict.get('title'):
+            context_dict['title'] = context_dict.get('id')
         return get_json_object(self, context_dict)
 
 
@@ -375,7 +325,7 @@ class GetCatalogResults(object):
         """ Recursively flatten the tree """
         for obj in children:
             if obj['path']:
-                self.items.append(obj['path']) 
+                self.items.append(obj['path'])
 
             children = obj.get('children', None)
             if children:
@@ -432,7 +382,6 @@ class GetCatalogResults(object):
                 self.flatten(tree['children'])
                 item_paths = self.items
                 return json.dumps(item_paths)
-            
             # it is not necessary in plone query
             del query['mode']
 
