@@ -78,7 +78,6 @@ class WrapperTest(unittest.TestCase):
         self.assertEqual(result['title'], self.folder2.Title())
         self.assertEqual(result['_defaultpage'], self.document2.getId())
         self.assertIn('_defaultitem', result)
-        self.assertEqual(result['_defaultitem']['id'], self.document2.getId())
         self.assertEqual(
             result['_defaultitem']['title'], self.document2.Title()
         )
