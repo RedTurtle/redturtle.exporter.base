@@ -8,33 +8,43 @@ Redturtle Exporter base
 
 .. image:: https://github.com/RedTurtle/redturtle.exporter.base/workflows/Tests/badge.svg
 
-Tell me what your product does
+Tool that exports Plone contents for a major migration.
+
+This should be used with **redturtle.importer.base/volto** packages.
 
 Features
 --------
 
-- Can be bullet points
+- Easily to include in your old site (just add to the buildout)
+- No dependencies to other tools
+- Easily to extend (see below)
 
+Custom exporters
+----------------
 
-Examples
---------
+This base product exports standard content-types (also Archetype-based).
 
-This add-on can be seen in action at the following sites:
-- Is there a page on the internet where everybody can see the features?
+If your site has some additional content-types to be exported and need to structure output in a more specific way,
+you can create a more specific package (for example redturtle.importer.project_name) where you can add specific exporters like this::
 
+    <browser:page
+      for="my.project.interfaces.IMyCustomType"
+      name="get_item"
+      class=".jsonify.MyCustomTypeGetItem"
+      permission="zope2.ViewManagementScreens"
+      />
 
-Documentation
--------------
+where **GetItem** class is::
 
-Full documentation for end users can be found in the "docs" folder, and is also available online at http://docs.plone.org/foo/bar
+    from redturtle.exporter.base.browser.jsonify import GetItem as BaseGetter
+    class MyCustomTypeGetItem(GetItem):
 
+        def __call__(self):
 
-Translations
-------------
+            context_dict = super(MyCustomTypeGetItem, self).__call__()
+            ... do something with context_dict ...
 
-This product has been translated into
-
-- Klingon (thanks, K'Plai)
+            return get_json_object(self, context_dict)
 
 
 Installation
@@ -58,14 +68,6 @@ Contribute
 
 - Issue Tracker: https://github.com/collective/redturtle.exporter.base/issues
 - Source Code: https://github.com/collective/redturtle.exporter.base
-- Documentation: https://docs.plone.org/foo/bar
-
-
-Support
--------
-
-If you are having issues, please let us know.
-We have a mailing list located at: project@example.com
 
 
 License

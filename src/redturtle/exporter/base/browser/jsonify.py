@@ -90,7 +90,7 @@ def check_hierarchy_private_status(self, context_dict):
     context_dict.update({'is_private': has_private_relatives})
 
 
-def get_list_of_conteiner_type(self, context_dict):
+def get_list_of_container_type(self, context_dict):
     fathers_type_list = []
     relatives = self.context.aq_chain
     for item in relatives:
@@ -142,7 +142,7 @@ class BaseGetItem(BaseGetItemView):
         get_discussion_objects(self, context_dict)
         get_solr_extrafields(self, context_dict)
         check_hierarchy_private_status(self, context_dict)
-        get_list_of_conteiner_type(self, context_dict)
+        get_list_of_container_type(self, context_dict)
         get_taxonomy_object(self, context_dict)
 
         return context_dict
