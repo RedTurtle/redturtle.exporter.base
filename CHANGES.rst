@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.0.0 (unreleased)
+1.0.0 (2020-02-05)
 ------------------
 
 - Heavy refactoring to be more DX compatible
