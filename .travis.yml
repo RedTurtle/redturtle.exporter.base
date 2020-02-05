@@ -29,7 +29,6 @@ install:
   - bin/buildout -N -t 3 code-analysis:return-status-codes=True
 
 script:
-  - python --version 2> /dev/stdout | grep 3.6 || bin/code-analysis
   - bin/test
 
 after_success:
