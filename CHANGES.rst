@@ -2,10 +2,14 @@ Changelog
 =========
 
 
-0.1.3 (unreleased)
+1.0.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Heavy refactoring to be more DX compatible
+  [eikichi][cekk]
+
+- Add tests
+  [cekk]
 
 
 0.1.2 (2019-09-18)
