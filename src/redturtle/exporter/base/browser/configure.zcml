@@ -2,16 +2,16 @@
     xmlns="http://namespaces.zope.org/zope"
     xmlns:browser="http://namespaces.zope.org/browser"
     xmlns:plone="http://namespaces.plone.org/plone"
+    xmlns:zcml="http://namespaces.zope.org/zcml"
     i18n_domain="redturtle.exporter.base">
 
   <!-- Views for base contents -->
-  <!-- <browser:page
+  <browser:page
       for="*"
       name="get_item"
       class=".jsonify.GetItem"
       permission="zope2.ViewManagementScreens"
-      layer="redturtle.exporter.base.interfaces.IRedTurtleExporterBaseLayer"
-      /> -->
+      />
 
 <browser:page
     for="*"
@@ -20,64 +20,6 @@
     permission="zope2.ViewManagementScreens"
     />
 
-  <browser:page
-      for="Products.ATContentTypes.interfaces.interfaces.IATContentType"
-      name="get_item"
-      class=".jsonify.GetItem"
-      permission="zope2.ViewManagementScreens"
-      />
-
-  <browser:page
-      for="Products.ATContentTypes.interfaces.document.IATDocument"
-      name="get_item"
-      class=".jsonify.GetItemDocument"
-      permission="zope2.ViewManagementScreens"
-      />
-
-  <browser:page
-      for="Products.ATContentTypes.interfaces.news.IATNewsItem"
-      name="get_item"
-      class=".jsonify.GetItem"
-      permission="zope2.ViewManagementScreens"
-      />
-
-  <browser:page
-      for="Products.ATContentTypes.interfaces.event.IATEvent"
-      name="get_item"
-      class=".jsonify.GetItemEvent"
-      permission="zope2.ViewManagementScreens"
-      />
-
-  <browser:page
-      for="Products.ATContentTypes.interfaces.topic.IATTopic"
-      name="get_item"
-      class=".jsonify.GetItemTopic"
-      permission="zope2.ViewManagementScreens"
-      />
-
-  <browser:page
-      for="Products.ATContentTypes.interfaces.link.IATLink"
-      name="get_item"
-      class=".jsonify.GetItemLink"
-      permission="zope2.ViewManagementScreens"
-      />
-
-  <browser:page
-      for="plone.app.collection.interfaces.ICollection"
-      name="get_item"
-      class=".jsonify.GetItemCollection"
-      permission="zope2.ViewManagementScreens"
-      />
-  <browser:page
-      for="Products.ATContentTypes.interfaces.IATFile"
-      name="get_item"
-      class=".jsonify.GetItemFile"
-      permission="zope2.ViewManagementScreens"
-      />
-  <browser:page
-      for="Products.ATContentTypes.interfaces.IATImage"
-      name="get_item"
-      class=".jsonify.GetItemImage"
-      permission="zope2.ViewManagementScreens"
-      />
+  <include file="archetypes.zcml"
+           zcml:condition="installed Products.ATContentTypes" />
 </configure>
