@@ -2,15 +2,16 @@
 from Products.CMFPlone.interfaces import INonInstallable
 from zope.interface import implementer
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 @implementer(INonInstallable)
 class HiddenProfiles(object):
-
     def getNonInstallableProfiles(self):
         """Hide uninstall profile from site-creation and quickinstaller."""
-        return [
-            'redturtle.exporter.base:uninstall',
-        ]
+        return ['redturtle.exporter.base:initializer']
 
 
 def post_install(context):
