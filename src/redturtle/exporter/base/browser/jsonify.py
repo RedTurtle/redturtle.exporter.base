@@ -362,28 +362,25 @@ class GetCatalogResults(object):
         # path it is necessary for now in OrderedTree mode
         if query.get('path', None) and query.get('mode', None):
 
-            if query['mode'] == 'OrderedTree':
-                root = api.content.get(path=query['path'])
+            root = api.content.get(path=query['path'])
 
-                if not root:
-                    return json.dumps(self.item_paths)
+            if not root:
+                return json.dumps(self.item_paths)
 
-                # if not IFolderish.providedBy(root):
-                #     self.items.append(root.absolute_url_path())
-                #     return json.dumps(self.items)
+            # if not IFolderish.providedBy(root):
+            #     self.items.append(root.absolute_url_path())
+            #     return json.dumps(self.items)
 
-                path = root.absolute_url_path() if not getattr(root, "getObject", None) else root.getPath() # noqa
-                tree = {'path': path, 'children': []} if not ISiteRoot.providedBy(root) else {'children': []} # noqa
-                tree['children'].extend(self.explain_tree(root))
+            path = root.absolute_url_path() if not getattr(root, "getObject", None) else root.getPath() # noqa
+            tree = {'path': path, 'children': []} if not ISiteRoot.providedBy(root) else {'children': []} # noqa
+            tree['children'].extend(self.explain_tree(root))
 
-                if tree.get('path', None):
-                    self.items.append(tree['path'])
+            if tree.get('path', None):
+                self.items.append(tree['path'])
 
-                self.flatten(tree['children'])
-                item_paths = self.items
-                return json.dumps(item_paths)
-            # it is not necessary in plone query
-            del query['mode']
+            self.flatten(tree['children'])
+            item_paths = self.items
+            return json.dumps(item_paths)
 
         item_paths = [item.getPath() for item in self.context.unrestrictedSearchResults(**query)] # noqa
         return json.dumps(item_paths)
