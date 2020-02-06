@@ -10,9 +10,9 @@
   <include package=".browser" />
 
   <genericsetup:registerProfile
-      name="initializer"
+      name="default"
       title="redturtle.exporter.base"
-      directory="profiles/initializer"
+      directory="profiles/default"
       description="Initialize a website with some example contents to be migrated."
       provides="Products.GenericSetup.interfaces.EXTENSION"
       post_handler=".setuphandlers.post_install"

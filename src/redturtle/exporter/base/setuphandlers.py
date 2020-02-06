@@ -5,6 +5,8 @@ from plone.app.textfield.value import RichTextValue
 from Products.ATContentTypes.interfaces.interfaces import IATContentType
 from Products.CMFPlone.interfaces import INonInstallable
 from zope.interface import implementer
+from plone.namedfile.file import NamedBlobImage
+from plone.namedfile.file import NamedBlobFile
 
 import logging
 import os
@@ -39,7 +41,7 @@ TEXT_WITH_LINK = '''
 class HiddenProfiles(object):
     def getNonInstallableProfiles(self):
         """Hide uninstall profile from site-creation and quickinstaller."""
-        return ['redturtle.exporter.base:initializer']
+        return ['redturtle.exporter.base:default']
 
 
 def post_install(context):
@@ -97,7 +99,10 @@ def set_text(item, text, ref=''):
 
 
 def set_image(item):
-    item.setImage(loadImage(name='plone.png'), content_type="image/png")
+    path = os.path.join(package_home(globals()), 'example_files', 'plone.png')
+    with open(path, 'rb') as fd:
+        image_data = fd.read()
+    item.image = NamedBlobImage(data=image_data, filename=u'plone.png')
 
 
 def set_file(item):
@@ -105,12 +110,5 @@ def set_file(item):
         package_home(globals()), 'example_files', 'example.pdf'
     )
     with open(path, 'rb') as fd:
-        item.setFile(fd)
-
-
-def loadImage(name, size=0):
-    """Load file from example directory
-    """
-    path = os.path.join(package_home(globals()), 'example_files', name)
-    with open(path, 'rb') as fd:
-        return fd.read()
+        file_data = fd.read()
+    item.file = NamedBlobImage(data=file_data, filename=u'example.pdf')
