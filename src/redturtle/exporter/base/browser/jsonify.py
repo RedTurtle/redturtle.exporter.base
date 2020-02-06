@@ -360,7 +360,7 @@ class GetCatalogResults(object):
         self.request.response.setHeader('Content-Type', 'application/json')
 
         # path it is necessary for now in OrderedTree mode
-        if query.get('path', None) and query.get('mode', None):
+        if query.get('path', None):
 
             root = api.content.get(path=query['path'])
 
