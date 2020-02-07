@@ -13,7 +13,7 @@ Changelog
 - Add install profile for create example contents for import tests.
   [cekk]
 
-1.0.0 (2020/02/05)
+1.0.0 (2020-02-05)
 ------------------
 
 - Heavy refactoring to be more DX compatible
