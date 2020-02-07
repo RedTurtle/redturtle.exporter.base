@@ -1,8 +1,8 @@
 Changelog
 =========
 
-1.0.1.dev0 (Unreleased)
------------------------
+1.0.1 (2020-02-07)
+------------------
 
 - Add install profile for create example contents for import tests.
   [cekk]
