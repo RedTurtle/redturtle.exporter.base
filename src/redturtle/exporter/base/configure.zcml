@@ -13,8 +13,9 @@
       name="default"
       title="redturtle.exporter.base"
       directory="profiles/default"
-      description="Installs the redturtle.export.base add-on."
+      description="Initialize a website with some example contents to be migrated."
       provides="Products.GenericSetup.interfaces.EXTENSION"
+      post_handler=".setuphandlers.post_install"
       />
 
 </configure>

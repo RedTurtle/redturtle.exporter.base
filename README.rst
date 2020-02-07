@@ -70,6 +70,17 @@ Contribute
 - Source Code: https://github.com/collective/redturtle.exporter.base
 
 
+Credits
+-------
+
+This product has been developed with some help from
+
+.. image:: https://kitconcept.com/logo.svg
+   :alt: kitconcept
+   :width: 300
+   :height: 80
+   :target: https://kitconcept.com/
+
 License
 -------
 

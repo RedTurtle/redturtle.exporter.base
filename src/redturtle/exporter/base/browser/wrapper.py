@@ -20,11 +20,6 @@ except ImportError:
     HASPLONEUUID = False
 
 
-RESOLVEUID_RE = re.compile(
-    r"""(['"]resolveuid/)(.*?)(['"])""", re.IGNORECASE | re.DOTALL
-)
-
-
 class Wrapper(dict):
     """Gets the data in a format that can be used by the transmogrifier
     blueprints in collective.jsonmigrator.
@@ -115,18 +110,6 @@ class Wrapper(dict):
         }
         return dvalue
 
-    def unresolve_uid(self, x):
-        uid = x.group(2)
-        end = ''
-        if '/' in uid:
-            uid, end = uid.split('/', 1)
-        obj = api.content.get(UID=uid)
-        if end:
-            result = "'{0}/{1}'".format(obj.absolute_url(), end)
-        else:
-            result = "'{0}'".format(obj.absolute_url())
-        return result
-
     def get_dexterity_fields(self):
         """If dexterity is used then extract fields.
         """
@@ -163,7 +146,6 @@ class Wrapper(dict):
                 if field_type in ("RichText",):
                     # TODO: content_type missing
                     value = six.text_type(value.raw)
-                    value = RESOLVEUID_RE.sub(self.unresolve_uid, value)
 
                 elif field_type in ("List", "Tuple") and field_value_type in (
                     "NamedImage",
