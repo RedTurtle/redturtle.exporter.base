@@ -68,6 +68,18 @@ def post_install(context):
     folder = api.content.create(
         type='Folder', title='Support folder', container=portal
     )
+    collection = api.content.create(
+        type='Collection',
+        title='Collection item',
+        container=portal,
+        query=[
+            {
+                u'i': u'portal_type',
+                u'o': u'plone.app.querystring.operation.selection.is',
+                u'v': [u'Document', u'News Item'],
+            }
+        ],
+    )
     image = api.content.create(
         type='Image', title='example image', container=portal
     )
