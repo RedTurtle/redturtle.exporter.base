@@ -50,25 +50,45 @@ def post_install(context):
     portal = api.portal.get()
 
     # first of all create some contents
+    folder1 = api.content.create(
+        type='Folder', title='Folder foo', container=portal
+    )
+    folder2 = api.content.create(
+        type='Folder', title='Folder bar', container=portal
+    )
+    folder3 = api.content.create(
+        type='Folder', title='Folder baz', container=folder2
+    )
+
     doc = api.content.create(
         type='Document',
         title='First Document',
         description='Pellentesque habitant morbi tristique senectus',
         container=portal,
     )
+    doc2 = api.content.create(
+        type='Document',
+        title='Second Document',
+        description='it\'s inside a folder',
+        container=folder1,
+    )
+
     news = api.content.create(
         type='News Item',
         title='A News',
         description='In hac habitasse platea dictumst',
         container=portal,
     )
-    event = api.content.create(
-        type='Event', title='Event foo', container=portal
+    api.content.create(
+        type='News Item',
+        title='Second News',
+        description='it\'s inside a folder',
+        container=folder2,
     )
-    folder = api.content.create(
-        type='Folder', title='Support folder', container=portal
-    )
-    collection = api.content.create(
+
+    api.content.create(type='Event', title='Event foo', container=portal)
+
+    api.content.create(
         type='Collection',
         title='Collection item',
         container=portal,
@@ -80,17 +100,12 @@ def post_install(context):
             }
         ],
     )
+
     image = api.content.create(
-        type='Image', title='example image', container=portal
+        type='Image', title='example image', container=folder3
     )
     file_obj = api.content.create(
-        type='File', title='example file', container=portal
-    )
-    doc2 = api.content.create(
-        type='Document',
-        title='Second Document',
-        description='it\'s inside the folder',
-        container=folder,
+        type='File', title='example file', container=folder3
     )
 
     # Now let's add some text
