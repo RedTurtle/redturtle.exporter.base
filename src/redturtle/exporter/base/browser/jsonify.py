@@ -393,7 +393,7 @@ class GetCatalogResults(object):
 
         root = api.portal.get()
 
-        tree = {'children': []}            
+        tree = {'children': []}
         tree['children'].extend(self.explain_tree(root))
 
         if tree.get('path', None):

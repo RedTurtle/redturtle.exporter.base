@@ -73,6 +73,14 @@ def post_install(context):
         container=folder1,
     )
 
+    doc3 = api.content.create(
+        type='Document',
+        title='Third document',
+        description='this is the defaulf view of a folder',
+        container=folder3,
+    )
+    folder3.setDefaultPage(doc3.getId())
+
     news = api.content.create(
         type='News Item',
         title='A News',
