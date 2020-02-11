@@ -118,6 +118,7 @@ def post_install(context):
 
     # Now let's add some text
     set_text(item=doc, text=SIMPLE_TEXT)
+    set_text(item=doc3, text=SIMPLE_TEXT)
     set_text(item=news, text=SIMPLE_TEXT)
     set_text(item=doc2, text=TEXT_WITH_LINK, ref=doc.UID())
     set_image(item=image)

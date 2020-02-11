@@ -30,16 +30,11 @@ class Wrapper(dict):
         self._context = aq_base(context)
         self.defaultpage = defaultpage
         self.charset = None
-        try:
-            from Products.CMFCore.utils import getToolByName
+        self.portal = api.portal.get()
 
-            self.portal = getToolByName(
-                self.context, "portal_url"
-            ).getPortalObject()
+        try:
             self.portal_path = "/".join(self.portal.getPhysicalPath())
-            self.portal_utils = getToolByName(
-                self.context, "plone_utils", None
-            )
+            self.portal_utils = api.portal.get_tool(name="plone_utils")
             try:
                 self.charset = (
                     self.portal.portal_properties.site_properties.default_charset  # noqa
