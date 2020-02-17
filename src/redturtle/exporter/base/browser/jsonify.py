@@ -352,7 +352,7 @@ class GetCatalogResults(object):
 
         if not hasattr(self.context.aq_base, 'unrestrictedSearchResults'):
             return
-        query = self.request.form.get('catalog_query', None)
+        query = self.request.form.get('catalog_query', {})
         if query:
             query = eval(base64.b64decode(query), {"__builtins__": None}, {})
         query.update({'sort_on': 'getObjPositionInParent'})

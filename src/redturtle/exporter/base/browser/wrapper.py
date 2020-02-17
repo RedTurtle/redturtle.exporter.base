@@ -192,8 +192,9 @@ class Wrapper(dict):
                     self["latitude"] = getattr(value, "latitude", 0)
                     self["longitude"] = getattr(value, "longitude", 0)
                     continue
-
-                elif isinstance(value, date):
+                elif isinstance(value, date) or isinstance(
+                    value, datetime.datetime
+                ):
                     value = value.isoformat()
 
                 # elif field_type in ('TextLine',):
@@ -345,7 +346,7 @@ class Wrapper(dict):
                         )
                     # if type_ == "TextField" and len(value) > 100:
                     #     import pdb;pdb.set_trace()
-                    value = RESOLVEUID_RE.sub(self.unresolve_uid, value)
+                    # value = RESOLVEUID_RE.sub(self.unresolve_uid, value)
 
                 elif value and type_ == "DataGridField":
                     for i, row in enumerate(value):
