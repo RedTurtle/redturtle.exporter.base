@@ -389,9 +389,6 @@ class GetCatalogResults(object):
     def __call__(self):
 
         self.items = []
-
-        if not hasattr(self.context.aq_base, 'unrestrictedSearchResults'):
-            return
         query = self.request.form.get('catalog_query', {})
         if query:
             query = eval(base64.b64decode(query), {"__builtins__": None}, {})
