@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.0.2 (unreleased)
+1.0.2 (2020-02-18)
 ------------------
 
 - Several improvements in export contents.
