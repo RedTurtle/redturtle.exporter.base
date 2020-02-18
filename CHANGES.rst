@@ -4,8 +4,8 @@ Changelog
 1.0.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Several improvements in export contents.
+  [cekk]
 
 1.0.1 (2020-02-07)
 ------------------
