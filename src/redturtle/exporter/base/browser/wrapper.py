@@ -8,7 +8,6 @@ from six.moves import range
 
 import datetime
 import os
-import re
 import six
 
 
@@ -30,16 +29,11 @@ class Wrapper(dict):
         self._context = aq_base(context)
         self.defaultpage = defaultpage
         self.charset = None
-        try:
-            from Products.CMFCore.utils import getToolByName
+        self.portal = api.portal.get()
 
-            self.portal = getToolByName(
-                self.context, "portal_url"
-            ).getPortalObject()
+        try:
             self.portal_path = "/".join(self.portal.getPhysicalPath())
-            self.portal_utils = getToolByName(
-                self.context, "plone_utils", None
-            )
+            self.portal_utils = api.portal.get_tool(name="plone_utils")
             try:
                 self.charset = (
                     self.portal.portal_properties.site_properties.default_charset  # noqa
@@ -344,9 +338,6 @@ class Wrapper(dict):
                             "problems with %s: %s"
                             % (self.context.absolute_url(), str(e))
                         )
-                    # if type_ == "TextField" and len(value) > 100:
-                    #     import pdb;pdb.set_trace()
-                    # value = RESOLVEUID_RE.sub(self.unresolve_uid, value)
 
                 elif value and type_ == "DataGridField":
                     for i, row in enumerate(value):

@@ -544,7 +544,6 @@ class TopicMigrator:
         self._collection_sort_on = None
         self._collection_query = None
         path = '/'.join(self.old.getPhysicalPath())
-        logger.info('Migrating %s at %s', self.src_portal_type, path)
         # Get the old criteria.
         # See also Products.ATContentTypes.content.topic.buildQuery
         criteria = self.old.listCriteria()

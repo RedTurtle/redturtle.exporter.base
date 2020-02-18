@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-# from .migration.topics import TopicMigrator
+from .migration.topics import TopicMigrator
 from redturtle.exporter.base.browser.wrapper import Wrapper
 from DateTime import DateTime
 from plone import api
 from plone.app.discussion.interfaces import IConversation
+from plone.memoize.view import memoize
 from Products.CMFCore.interfaces import ISiteRoot
 from Products.Five.browser import BrowserView
 from Products.CMFCore.interfaces import IFolderish
@@ -84,7 +85,8 @@ def check_hierarchy_private_status(self, context_dict):
         if ISiteRoot.providedBy(item):
             # se è la root del sito esci
             break
-        if api.content.get_state(item, 'published') and api.content.get_state(item, 'published') != 'published':  # noqa
+        review_state = api.content.get_state(item, 'published')
+        if review_state and review_state != 'published':  # noqa
             has_private_relatives = True
             break
     context_dict.update({'is_private': has_private_relatives})
@@ -183,20 +185,20 @@ class GetItemEvent(BaseGetItem):
         Event
         """
         context_dict = super(GetItemEvent, self).__call__()
-
         context_dict.update({
-            'start': context_dict.get('startDate')})
-        context_dict.update({
-            'end': context_dict.get('endDate')})
-        context_dict.update({
-            'contact_name': context_dict.get('contactName')})
-        context_dict.update({
-            'contact_email': context_dict.get('contactEmail')})
-        context_dict.update({
-            'contact_phone': context_dict.get('contactPhone')})
-        context_dict.update({
-            'event_url': context_dict.get('eventUrl')})
-
+            'start': DateTime(context_dict.get('startDate')).asdatetime().isoformat(),  # noqa
+            'end': DateTime(context_dict.get('endDate')).asdatetime().isoformat(),  # noqa
+            'contact_name': context_dict.get('contactName'),
+            'contact_email': context_dict.get('contactEmail'),
+            'contact_phone': context_dict.get('contactPhone'),
+            'event_url': context_dict.get('eventUrl'),
+        })
+        del context_dict['startDate']
+        del context_dict['endDate']
+        del context_dict['contactName']
+        del context_dict['contactEmail']
+        del context_dict['contactPhone']
+        del context_dict['eventUrl']
         return get_json_object(self, context_dict)
 
 
@@ -213,52 +215,52 @@ class GetItemDocument(BaseGetItem):
         return get_json_object(self, context_dict)
 
 
-# class GetItemTopic(BaseGetItem):
+class GetItemTopic(BaseGetItem):
 
-#     def convert_criterion(self, old_criterion):
-#         pass
+    def convert_criterion(self, old_criterion):
+        pass
 
-#     def __call__(self):
-#         """
-#         Topic
-#         """
-#         mt = TopicMigrator()
-#         criterions_list = mt.__call__(self.context)
-#         # check format in case of date values
-#         for crit_dict in criterions_list:
-#             values = crit_dict.get('v')
-#             if not values:
-#                 continue
-#             if isinstance(values, int):
-#                 continue
-#             try:
-#                 if not any([True for x in values if isinstance(x, DateTime)]):  # noqa
-#                     continue
-#             except Exception:
-#                 import pdb
-#                 pdb.set_trace()
+    def __call__(self):
+        """
+        Topic
+        """
+        mt = TopicMigrator()
+        criterions_list = mt.__call__(self.context)
+        # check format in case of date values
+        for crit_dict in criterions_list:
+            values = crit_dict.get('v')
+            if not values:
+                continue
+            if isinstance(values, int):
+                continue
+            try:
+                if not any([True for x in values if isinstance(x, DateTime)]):  # noqa
+                    continue
+            except Exception:
+                import pdb
+                pdb.set_trace()
 
-#             new_values = []
+            new_values = []
 
-#             for val in values:
-#                 new_values.append(val.asdatetime().isoformat())
-#             if isinstance(values, tuple):
-#                 new_values = tuple(new_values)
-#             crit_dict.update({'v': new_values})
+            for val in values:
+                new_values.append(val.asdatetime().isoformat())
+            if isinstance(values, tuple):
+                new_values = tuple(new_values)
+            crit_dict.update({'v': new_values})
 
-#         sort_on = mt._collection_sort_on
-#         sort_reversed = mt._collection_sort_reversed
-#         context_dict = super(GetItemTopic, self).__call__()
-#         context_dict.update({'query': criterions_list})
-#         context_dict.update({'sort_on': sort_on})
-#         context_dict.update({'sort_reversed': sort_reversed})
+        sort_on = mt._collection_sort_on
+        sort_reversed = mt._collection_sort_reversed
+        context_dict = super(GetItemTopic, self).__call__()
+        context_dict.update({'query': criterions_list})
+        context_dict.update({'sort_on': sort_on})
+        context_dict.update({'sort_reversed': sort_reversed})
 
-#         if not context_dict.get('itemCount'):
-#             context_dict.update({'item_count': '30'})
-#         else:
-#             context_dict.update({
-#                 'item_count': context_dict.get('itemCount')})
-#         return get_json_object(self, context_dict)
+        if not context_dict.get('itemCount'):
+            context_dict.update({'item_count': '30'})
+        else:
+            context_dict.update({
+                'item_count': context_dict.get('itemCount')})
+        return get_json_object(self, context_dict)
 
 
 class GetItemCollection(BaseGetItem):
@@ -321,6 +323,32 @@ class GetCatalogResults(object):
     items = []
     item_paths = []
 
+    @property
+    @memoize
+    def query(self):
+        query = self.request.form.get('catalog_query', {})
+        if query:
+            query = eval(base64.b64decode(query), {"__builtins__": None}, {})
+        query.update({'sort_on': 'getObjPositionInParent'})
+        return query
+
+    @property
+    @memoize
+    def brains(self):
+        pc = api.portal.get_tool(name='portal_catalog')
+        return pc.unrestrictedSearchResults(**self.query)
+
+
+    @property
+    @memoize
+    def uids(self):
+        return [x.UID for x in self.brains]
+
+    @property
+    @memoize
+    def paths(self):
+        return [x.getPath() for x in self.brains]
+
     def flatten(self, children):
         """ Recursively flatten the tree """
         for obj in children:
@@ -331,6 +359,13 @@ class GetCatalogResults(object):
             if children:
                 self.flatten(children)
 
+    def pathInList(self, path):
+        path_str = '{}/'.format(path)
+        for item_path in self.paths:
+            if path_str in item_path:
+                return True
+        return False
+
     def explain_tree(self, root):
 
         results = []
@@ -338,6 +373,11 @@ class GetCatalogResults(object):
         children = root.listFolderContents()
         for obj in children:
             path = obj.absolute_url_path() if not getattr(obj, "getObject", None) else obj.getPath() # noqa
+            if obj.UID() not in self.uids:
+                if not self.pathInList(path):
+                    # object is not in catalog results and isn't neither a
+                    # folder in its tree
+                    continue
             obj_dict = {'path': path, 'children': []}
             if IFolderish.providedBy(obj):
                 obj_dict['children'] = self.explain_tree(obj)
@@ -349,9 +389,6 @@ class GetCatalogResults(object):
     def __call__(self):
 
         self.items = []
-
-        if not hasattr(self.context.aq_base, 'unrestrictedSearchResults'):
-            return
         query = self.request.form.get('catalog_query', {})
         if query:
             query = eval(base64.b64decode(query), {"__builtins__": None}, {})
@@ -359,28 +396,15 @@ class GetCatalogResults(object):
 
         self.request.response.setHeader('Content-Type', 'application/json')
 
-        # path it is necessary for now in OrderedTree mode
-        if query.get('path', None):
+        self.items = []
 
-            root = api.content.get(path=query['path'])
+        root = api.portal.get()
 
-            if not root:
-                return json.dumps(self.item_paths)
+        tree = {'children': []}
+        tree['children'].extend(self.explain_tree(root))
 
-            # if not IFolderish.providedBy(root):
-            #     self.items.append(root.absolute_url_path())
-            #     return json.dumps(self.items)
-
-            path = root.absolute_url_path() if not getattr(root, "getObject", None) else root.getPath() # noqa
-            tree = {'path': path, 'children': []} if not ISiteRoot.providedBy(root) else {'children': []} # noqa
-            tree['children'].extend(self.explain_tree(root))
-
-            if tree.get('path', None):
-                self.items.append(tree['path'])
-
-            self.flatten(tree['children'])
-            item_paths = self.items
-            return json.dumps(item_paths)
-
-        item_paths = [item.getPath() for item in self.context.unrestrictedSearchResults(**query)] # noqa
+        if tree.get('path', None):
+            self.items.append(tree['path'])
+        self.flatten(tree['children'])
+        item_paths = self.items
         return json.dumps(item_paths)
