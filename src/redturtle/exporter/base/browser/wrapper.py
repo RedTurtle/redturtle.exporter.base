@@ -8,7 +8,6 @@ from six.moves import range
 
 import datetime
 import os
-import re
 import six
 
 
@@ -339,9 +338,6 @@ class Wrapper(dict):
                             "problems with %s: %s"
                             % (self.context.absolute_url(), str(e))
                         )
-                    # if type_ == "TextField" and len(value) > 100:
-                    #     import pdb;pdb.set_trace()
-                    # value = RESOLVEUID_RE.sub(self.unresolve_uid, value)
 
                 elif value and type_ == "DataGridField":
                     for i, row in enumerate(value):

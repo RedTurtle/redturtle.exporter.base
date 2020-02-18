@@ -184,20 +184,20 @@ class GetItemEvent(BaseGetItem):
         Event
         """
         context_dict = super(GetItemEvent, self).__call__()
-
         context_dict.update({
-            'start': context_dict.get('startDate')})
-        context_dict.update({
-            'end': context_dict.get('endDate')})
-        context_dict.update({
-            'contact_name': context_dict.get('contactName')})
-        context_dict.update({
-            'contact_email': context_dict.get('contactEmail')})
-        context_dict.update({
-            'contact_phone': context_dict.get('contactPhone')})
-        context_dict.update({
-            'event_url': context_dict.get('eventUrl')})
-
+            'start': DateTime(context_dict.get('startDate')).asdatetime().isoformat(),  # noqa
+            'end': DateTime(context_dict.get('endDate')).asdatetime().isoformat(),  # noqa
+            'contact_name': context_dict.get('contactName'),
+            'contact_email': context_dict.get('contactEmail'),
+            'contact_phone': context_dict.get('contactPhone'),
+            'event_url': context_dict.get('eventUrl'),
+        })
+        del context_dict['startDate']
+        del context_dict['endDate']
+        del context_dict['contactName']
+        del context_dict['contactEmail']
+        del context_dict['contactPhone']
+        del context_dict['eventUrl']
         return get_json_object(self, context_dict)
 
 
