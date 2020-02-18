@@ -124,6 +124,10 @@ def post_install(context):
     set_image(item=image)
     set_file(item=file_obj)
 
+    #  and publish some contents
+    api.content.transition(obj=folder1, transition='publish')
+    api.content.transition(obj=doc, transition='publish')
+
 
 def set_text(item, text, ref=''):
     if ref:

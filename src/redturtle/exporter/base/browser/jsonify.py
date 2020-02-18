@@ -85,7 +85,8 @@ def check_hierarchy_private_status(self, context_dict):
         if ISiteRoot.providedBy(item):
             # se è la root del sito esci
             break
-        if api.content.get_state(item, 'published') and api.content.get_state(item, 'published') != 'published':  # noqa
+        review_state = api.content.get_state(item, 'published')
+        if review_state and review_state != 'published':  # noqa
             has_private_relatives = True
             break
     context_dict.update({'is_private': has_private_relatives})
