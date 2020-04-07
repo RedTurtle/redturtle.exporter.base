@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
   build:
-    runs-on: debian-stretch
+    runs-on: ubuntu-latest
     strategy:
       max-parallel: 4
       matrix:
@@ -26,6 +26,7 @@ jobs:
           python-version: ${{ matrix.python }}
       - name: Install dependencies
         run: |
+          sudo apt-get install libxml2-dev libxslt-dev
           pip install -r requirements.txt -c constraints_plone${{ matrix.plone }}.txt
           cp test_plone${{ matrix.plone }}.cfg buildout.cfg
       - name: Install buildout
