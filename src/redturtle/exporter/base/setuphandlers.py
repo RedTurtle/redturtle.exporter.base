@@ -2,11 +2,10 @@
 from App.Common import package_home
 from plone import api
 from plone.app.textfield.value import RichTextValue
+from plone.namedfile.file import NamedBlobImage
 from Products.ATContentTypes.interfaces.interfaces import IATContentType
 from Products.CMFPlone.interfaces import INonInstallable
 from zope.interface import implementer
-from plone.namedfile.file import NamedBlobImage
-from plone.namedfile.file import NamedBlobFile
 
 import logging
 import os
