@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.0.3 (unreleased)
+1.1.0 (2020-04-07)
 ------------------
 
 - Add export users and groups views.
