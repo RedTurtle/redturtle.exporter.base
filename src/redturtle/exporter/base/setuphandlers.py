@@ -2,11 +2,10 @@
 from App.Common import package_home
 from plone import api
 from plone.app.textfield.value import RichTextValue
+from plone.namedfile.file import NamedBlobImage
 from Products.ATContentTypes.interfaces.interfaces import IATContentType
 from Products.CMFPlone.interfaces import INonInstallable
 from zope.interface import implementer
-from plone.namedfile.file import NamedBlobImage
-from plone.namedfile.file import NamedBlobFile
 
 import logging
 import os
@@ -34,6 +33,18 @@ TEXT_WITH_LINK = '''
     This is
     <a class="external-link" href="https://www.plone.org" title="">external</a>
 </p>
+'''
+
+TEXT_WITH_EMPTY_TAGS = '''
+<p>Foo</p>
+<p> </p>
+<p><strong><br /></strong></p>
+<p><strong>Bar</strong></p>
+<p><i> </i></p>
+<p><strong> </strong></p>
+<p></p>
+<p><i><br /></i></p>
+<i>
 '''
 
 
@@ -81,6 +92,13 @@ def post_install(context):
     )
     folder3.setDefaultPage(doc3.getId())
 
+    doc4 = api.content.create(
+        type='Document',
+        title='Document with empty tags',
+        description='',
+        container=portal,
+    )
+
     news = api.content.create(
         type='News Item',
         title='A News',
@@ -116,17 +134,35 @@ def post_install(context):
         type='File', title='example file', container=folder3
     )
 
-    # Now let's add some text
+    # Now let's add some text and files
     set_text(item=doc, text=SIMPLE_TEXT)
     set_text(item=doc3, text=SIMPLE_TEXT)
     set_text(item=news, text=SIMPLE_TEXT)
     set_text(item=doc2, text=TEXT_WITH_LINK, ref=doc.UID())
+    set_text(item=doc4, text=TEXT_WITH_EMPTY_TAGS)
+
     set_image(item=image)
     set_file(item=file_obj)
 
     #  and publish some contents
     api.content.transition(obj=folder1, transition='publish')
     api.content.transition(obj=doc, transition='publish')
+    api.content.transition(obj=doc4, transition='publish')
+
+    #  finally create some users and groups
+    api.user.create(
+        username='john',
+        email='jdoe@plone.org',
+        properties=dict(fullname='John Doe'),
+    )
+    api.user.create(username='bob', email='bob@plone.org')
+    api.user.grant_roles(username='bob', roles=['Reviewer'])
+
+    api.group.create(groupname='staff')
+    group_tool = api.portal.get_tool(name='portal_groups')
+    group_tool.editGroup('staff', roles=['Editor', 'Reader'])
+    api.group.add_user(groupname='Administrators', username='john')
+    api.group.add_user(groupname='staff', username='bob')
 
 
 def set_text(item, text, ref=''):

@@ -34,13 +34,13 @@ class CatalogExporterViewTest(unittest.TestCase):
 
     def test_export_without_query(self):
         res = json.loads(self.view())
-        self.assertEqual(len(res), 12)
+        self.assertEqual(len(res), 13)
         self.assertEqual(len(res), len(self.catalog()))
 
     def test_export_only_documents(self):
         self.request.form = self.generate_query({'portal_type': 'Document'})
         res = json.loads(self.view())
-        self.assertEqual(len(res), 6)
+        self.assertEqual(len(res), 7)
         self.assertEqual(
             res,
             [
@@ -50,6 +50,7 @@ class CatalogExporterViewTest(unittest.TestCase):
                 u'/plone/folder-bar/folder-baz',
                 u'/plone/folder-bar/folder-baz/third-document',
                 u'/plone/first-document',
+                u'/plone/document-with-empty-tags',
             ],
         )
 

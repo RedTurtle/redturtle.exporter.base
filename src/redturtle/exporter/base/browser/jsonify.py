@@ -233,12 +233,8 @@ class GetItemTopic(BaseGetItem):
                 continue
             if isinstance(values, int):
                 continue
-            try:
-                if not any([True for x in values if isinstance(x, DateTime)]):  # noqa
-                    continue
-            except Exception:
-                import pdb
-                pdb.set_trace()
+            if not any([True for x in values if isinstance(x, DateTime)]):  # noqa
+                continue
 
             new_values = []
 
@@ -337,7 +333,6 @@ class GetCatalogResults(object):
     def brains(self):
         pc = api.portal.get_tool(name='portal_catalog')
         return pc.unrestrictedSearchResults(**self.query)
-
 
     @property
     @memoize

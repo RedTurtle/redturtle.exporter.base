@@ -47,6 +47,16 @@ where **GetItem** class is::
             return get_json_object(self, context_dict)
 
 
+Export users and groups
+-----------------------
+
+There are two additional views that can be called (only Site Managers has access to these views) to export the list of users and groups:
+
+- /export_users
+- /export_groups
+
+These views returns a json with all the informations.
+
 Installation
 ------------
 

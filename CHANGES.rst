@@ -4,7 +4,8 @@ Changelog
 1.0.3 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Add export users and groups views.
+  [cekk]
 
 
 1.0.2 (2020-02-18)
