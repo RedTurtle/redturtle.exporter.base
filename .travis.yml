@@ -25,7 +25,6 @@ before_install:
   - cp test_plone$PLONE_VERSION.cfg buildout.cfg
 
 install:
-  - bin/buildout -N -t 3 code-analysis:return-status-codes=True annotate
   - bin/buildout -N -t 3 code-analysis:return-status-codes=True
 
 script:
