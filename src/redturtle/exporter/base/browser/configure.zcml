@@ -22,4 +22,18 @@
 
   <include file="archetypes.zcml"
            zcml:condition="installed Products.ATContentTypes" />
+  
+  <browser:page
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+      name="export_users"
+      class=".users_and_groups.ExportUsers"
+      permission="cmf.ManagePortal"
+      />
+  <browser:page
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+      name="export_groups"
+      class=".users_and_groups.ExportGroups"
+      permission="cmf.ManagePortal"
+      />
+      
 </configure>
