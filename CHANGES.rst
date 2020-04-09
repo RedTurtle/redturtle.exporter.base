@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.1.1 (unreleased)
+1.1.1 (2020-04-09)
 ------------------
 
 - Add more properties to users export.
