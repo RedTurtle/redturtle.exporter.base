@@ -4,7 +4,8 @@ Changelog
 1.1.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Add more properties to users export.
+  [cekk]
 
 
 1.1.0 (2020-04-07)
