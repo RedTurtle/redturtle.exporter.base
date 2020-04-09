@@ -23,7 +23,12 @@ class ExportUsers(BaseView):
             user_data = {
                 'email': user.getProperty('email'),
                 'roles': user.getRoles(),
-                'properties': {'fullname': user.getProperty('fullname')},
+                'properties': {
+                    'fullname': user.getProperty('fullname', ''),
+                    'description': user.getProperty('description', ''),
+                    'location': user.getProperty('location', ''),
+                    'home_page': user.getProperty('home_page', ''),
+                },
             }
             exported_users['_acl_users'][user._id] = user_data
         return exported_users

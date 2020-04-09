@@ -153,7 +153,11 @@ def post_install(context):
     api.user.create(
         username='john',
         email='jdoe@plone.org',
-        properties=dict(fullname='John Doe'),
+        properties=dict(
+            fullname='John Doe',
+            description='foo',
+            home_page='http://www.plone.org',
+        ),
     )
     api.user.create(username='bob', email='bob@plone.org')
     api.user.grant_roles(username='bob', roles=['Reviewer'])

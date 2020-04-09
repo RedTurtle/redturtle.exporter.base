@@ -48,7 +48,19 @@ class WrapperTest(unittest.TestCase):
         self.assertEqual('jdoe@plone.org', users['john']['email'])
         self.assertEqual('bob@plone.org', users['bob']['email'])
         self.assertEqual('John Doe', users['john']['properties']['fullname'])
-        self.assertEqual({'fullname': ''}, users['bob']['properties'])
+        self.assertEqual(
+            'http://www.plone.org', users['john']['properties']['home_page']
+        )
+        self.assertEqual('foo', users['john']['properties']['description'])
+        self.assertEqual(
+            {
+                u'description': u'',
+                u'fullname': u'',
+                u'home_page': u'',
+                u'location': u'',
+            },
+            users['bob']['properties'],
+        )
         self.assertEqual(
             [u'Member', u'Reviewer', u'Authenticated', u'Editor', u'Reader'],
             users['bob']['roles'],
