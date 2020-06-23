@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.1.2 (unreleased)
+1.1.2 (2020-06-23)
 ------------------
 
 - Set effective date to example published contents.
