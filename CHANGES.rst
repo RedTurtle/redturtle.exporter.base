@@ -4,7 +4,8 @@ Changelog
 1.1.3 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fix dates set in example contents.
+  [cekk]
 
 
 1.1.2 (2020-06-23)

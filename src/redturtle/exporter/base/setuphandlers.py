@@ -71,7 +71,6 @@ def post_install(context):
         title="First Document",
         description="Pellentesque habitant morbi tristique senectus",
         container=portal,
-        effectiveDate=DateTime(),
     )
     doc2 = api.content.create(
         type="Document",
@@ -141,6 +140,9 @@ def post_install(context):
     api.content.transition(obj=folder1, transition="publish")
     api.content.transition(obj=doc, transition="publish")
     api.content.transition(obj=doc4, transition="publish")
+    doc.setEffectiveDate(DateTime())
+    doc4.setEffectiveDate(DateTime())
+    folder1.setEffectiveDate(DateTime())
 
     #  finally create some users and groups
     api.user.create(
