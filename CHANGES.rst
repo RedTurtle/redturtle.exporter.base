@@ -4,7 +4,8 @@ Changelog
 1.1.4 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fix text encoding.
+  [cekk]
 
 
 1.1.3 (2020-06-23)

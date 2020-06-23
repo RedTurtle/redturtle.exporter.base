@@ -82,9 +82,7 @@ class Wrapper(dict):
             data = value.data
 
         try:
-            max_filesize = int(
-                os.environ.get("JSONIFY_MAX_FILESIZE", 20000000)
-            )
+            max_filesize = int(os.environ.get("JSONIFY_MAX_FILESIZE", 20000000))
         except ValueError:
             max_filesize = 20000000
 
@@ -139,7 +137,7 @@ class Wrapper(dict):
 
                 if field_type in ("RichText",):
                     # TODO: content_type missing
-                    value = six.text_type(value.raw)
+                    value = six.text_type(value.raw.decode("utf-8"))
 
                 elif field_type in ("List", "Tuple") and field_value_type in (
                     "NamedImage",
@@ -186,9 +184,7 @@ class Wrapper(dict):
                     self["latitude"] = getattr(value, "latitude", 0)
                     self["longitude"] = getattr(value, "longitude", 0)
                     continue
-                elif isinstance(value, date) or isinstance(
-                    value, datetime.datetime
-                ):
+                elif isinstance(value, date) or isinstance(value, datetime.datetime):
                     value = value.isoformat()
 
                 # elif field_type in ('TextLine',):
@@ -221,12 +217,7 @@ class Wrapper(dict):
         """Run upgrade step transformation (this is not available from Plone 4.3.x)
         plone.app.querystring.upgrades.fix_select_all_existing_collections
         """
-        indexes_to_fix = [
-            u"portal_type",
-            u"review_state",
-            u"Creator",
-            u"Subject",
-        ]
+        indexes_to_fix = [u"portal_type", u"review_state", u"Creator", u"Subject"]
         operator_mapping = {
             # old -> new
             u"plone.app.querystring.operation.selection.is": u"plone.app.querystring.operation.selection.any",  # noqa
@@ -383,9 +374,7 @@ class Wrapper(dict):
                         value = base64.b64encode(value)
 
                 try:
-                    max_filesize = int(
-                        os.environ.get("JSONIFY_MAX_FILESIZE", 20000000)
-                    )
+                    max_filesize = int(os.environ.get("JSONIFY_MAX_FILESIZE", 20000000))
                 except ValueError:
                     max_filesize = 20000000
 
@@ -484,18 +473,14 @@ class Wrapper(dict):
             refs = self.context.getRefs(relationship=rel)
             for ref in refs:
                 if ref is not None:
-                    self["_atrefs"][rel].append(
-                        "/".join(ref.getPhysicalPath())
-                    )
+                    self["_atrefs"][rel].append("/".join(ref.getPhysicalPath()))
         brelationships = self.context.getBRelationships()
         for brel in brelationships:
             self["_atbrefs"][brel] = []
             brefs = self.context.getBRefs(relationship=brel)
             for bref in brefs:
                 if bref is not None:
-                    self["_atbrefs"][brel].append(
-                        "/".join(bref.getPhysicalPath())
-                    )
+                    self["_atbrefs"][brel].append("/".join(bref.getPhysicalPath()))
 
     def get_uid(self):
         """Unique ID of object
@@ -591,9 +576,7 @@ class Wrapper(dict):
         _default_item = None
         _default = ""
         try:
-            _default_item, _default = self.portal_utils.browserDefault(
-                self.context
-            )
+            _default_item, _default = self.portal_utils.browserDefault(self.context)
             for path in _default:
                 if _default_item is None:
                     break
@@ -878,29 +861,21 @@ class Wrapper(dict):
         # For Link & Favourite types - field name has changed in Archetypes &
         # Dexterity
         if hasattr(self.context, "remote_url"):
-            self["remoteUrl"] = self.decode(
-                getattr(self.context, "remote_url")
-            )
+            self["remoteUrl"] = self.decode(getattr(self.context, "remote_url"))
 
         # For Document & News items
         if hasattr(self.context, "text"):
             self["text"] = self.decode(getattr(self.context, "text"))
         if hasattr(self.context, "text_format"):
-            self["text_format"] = self.decode(
-                getattr(self.context, "text_format")
-            )
+            self["text_format"] = self.decode(getattr(self.context, "text_format"))
 
         # Found in Document & News items, but not sure if this is necessary
         if hasattr(self.context, "safety_belt"):
-            self["safety_belt"] = self.decode(
-                getattr(self.context, "safety_belt")
-            )
+            self["safety_belt"] = self.decode(getattr(self.context, "safety_belt"))
 
         # Found in File & Image types, but not sure if this is necessary
         if hasattr(self.context, "precondition"):
-            self["precondition"] = self.decode(
-                getattr(self.context, "precondition")
-            )
+            self["precondition"] = self.decode(getattr(self.context, "precondition"))
 
         data_type = self.context.portal_type
 
@@ -926,9 +901,7 @@ class Wrapper(dict):
                     value = b64encode(value)
 
             try:
-                max_filesize = int(
-                    os.environ.get("JSONIFY_MAX_FILESIZE", 20000000)
-                )
+                max_filesize = int(os.environ.get("JSONIFY_MAX_FILESIZE", 20000000))
             except ValueError:
                 max_filesize = 20000000
 
@@ -942,8 +915,7 @@ class Wrapper(dict):
                     fname = six.text_type(fname)
                 except Exception as e:
                     raise Exception(
-                        "problems with %s: %s"
-                        % (self.context.absolute_url(), str(e))
+                        "problems with %s: %s" % (self.context.absolute_url(), str(e))
                     )
 
                 ctype = orig_value.getContentType()
@@ -976,21 +948,15 @@ class Wrapper(dict):
 
             history_list = []
             # Count backwards from most recent to least recent
-            for i in range(
-                history_metadata.getLength(countPurged=False) - 1, -1, -1
-            ):
+            for i in range(history_metadata.getLength(countPurged=False) - 1, -1, -1):
                 data = history_metadata.retrieve(i, countPurged=False)
                 meta = data["metadata"]["sys_metadata"].copy()
                 # version_id = history_metadata.getVersionId(
                 #     i, countPurged=False
                 # )
                 try:
-                    dateaux = datetime.datetime.fromtimestamp(
-                        meta.get("timestamp", 0)
-                    )
-                    meta["timestamp"] = dateaux.strftime(
-                        "%Y/%m/%d %H:%M:%S GMT"
-                    )
+                    dateaux = datetime.datetime.fromtimestamp(meta.get("timestamp", 0))
+                    meta["timestamp"] = dateaux.strftime("%Y/%m/%d %H:%M:%S GMT")
                 except Exception:
                     meta["timestamp"] = ""
                 history_list.append(meta)
@@ -1010,9 +976,7 @@ class Wrapper(dict):
             from plone.app.redirector.interfaces import IRedirectionStorage
 
             storage = getUtility(IRedirectionStorage)
-            redirects = storage.redirects(
-                "/".join(self.context.getPhysicalPath())
-            )
+            redirects = storage.redirects("/".join(self.context.getPhysicalPath()))
             if redirects:
                 # remove site name (e.g. "/Plone") from redirect paths
                 self["_old_paths"] = [
