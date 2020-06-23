@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.1.3 (unreleased)
+1.1.3 (2020-06-23)
 ------------------
 
 - Fix dates set in example contents.
