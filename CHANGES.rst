@@ -4,7 +4,8 @@ Changelog
 1.1.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Set effective date to example published contents.
+  [cekk]
 
 
 1.1.1 (2020-04-09)
