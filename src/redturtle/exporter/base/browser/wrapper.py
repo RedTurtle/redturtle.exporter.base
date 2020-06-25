@@ -137,7 +137,7 @@ class Wrapper(dict):
 
                 if field_type in ("RichText",):
                     # TODO: content_type missing
-                    value = six.text_type(value.raw.encode("utf-8"))
+                    value = six.text_type(value.raw.decode("utf-8"))
 
                 elif field_type in ("List", "Tuple") and field_value_type in (
                     "NamedImage",

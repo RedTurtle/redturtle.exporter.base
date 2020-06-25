@@ -1,17 +1,10 @@
 Changelog
 =========
 
-1.1.6 (unreleased)
+1.1.5 (unreleased)
 ------------------
 
 - Nothing changed yet.
-
-
-1.1.5 (2020-06-25)
-------------------
-
-- Fix text encoding.
-  [cekk]
 
 
 1.1.4 (2020-06-23)
