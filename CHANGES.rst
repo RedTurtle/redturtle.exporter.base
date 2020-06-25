@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.1.5 (unreleased)
+1.1.5 (2020-06-25)
 ------------------
 
 - Fix text encoding.
