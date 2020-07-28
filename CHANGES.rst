@@ -4,7 +4,8 @@ Changelog
 1.1.5 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fix dependencies versions for old Plone sites.
+  [cekk]
 
 
 1.1.4 (2020-06-23)
