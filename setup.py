@@ -16,7 +16,7 @@ long_description = '\n\n'.join(
 
 setup(
     name='redturtle.exporter.base',
-    version='1.1.6',
+    version='1.1.5',
     description="Json exporter base for Plone",
     long_description=long_description,
     # Get more from https://pypi.python.org/pypi?%3Aaction=list_classifiers

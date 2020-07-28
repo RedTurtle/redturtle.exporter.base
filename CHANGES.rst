@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.1.5 (unreleased)
+1.1.5 (2020-07-28)
 ------------------
 
 - Fix dependencies versions for old Plone sites.
