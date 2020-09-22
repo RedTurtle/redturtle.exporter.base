@@ -4,7 +4,8 @@ Changelog
 1.1.7 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Also export portlets.
+  [cekk]
 
 
 1.1.6 (2020-07-28)
