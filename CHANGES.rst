@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.1.7 (unreleased)
+1.2.0 (2020-09-22)
 ------------------
 
 - Also export portlets.
