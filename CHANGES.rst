@@ -4,7 +4,8 @@ Changelog
 1.2.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fix deletion of keys in vocabulary.
+  [daniele]
 
 
 1.2.0 (2020-09-22)
