@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.2.1 (unreleased)
+1.2.1 (2020-10-09)
 ------------------
 
 - Fix deletion of keys in vocabulary.
