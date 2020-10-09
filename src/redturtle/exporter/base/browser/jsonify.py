@@ -193,12 +193,12 @@ class GetItemEvent(BaseGetItem):
             'contact_phone': context_dict.get('contactPhone'),
             'event_url': context_dict.get('eventUrl'),
         })
-        del context_dict['startDate']
-        del context_dict['endDate']
-        del context_dict['contactName']
-        del context_dict['contactEmail']
-        del context_dict['contactPhone']
-        del context_dict['eventUrl']
+        context_dict.pop('startDate', None)
+        context_dict.pop('endDate', None)
+        context_dict.pop('contactName', None)
+        context_dict.pop('contactEmail', None)
+        context_dict.pop('contactPhone', None)
+        context_dict.pop('eventUrl', None)
         return get_json_object(self, context_dict)
 
 
