@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from .migration.topics import TopicMigrator
 from redturtle.exporter.base.browser.wrapper import Wrapper
 from DateTime import DateTime
 from plone import api
@@ -12,6 +11,7 @@ from Products.CMFCore.interfaces import IFolderish
 import base64
 import json
 import logging
+import six
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +32,7 @@ def get_json_object(self, context_dict):
         try:
             JSON = json.dumps(context_dict)
             passed = True
-        except Exception, error:
+        except Exception as error:
             if 'serializable' in str(error):
                 key, context_dict = _clean_dict(context_dict, error)
                 logger.error(
@@ -55,7 +55,7 @@ def get_discussion_objects(self, context_dict):
     for item in comments:
         tmp_dict = item.__dict__
         if not tmp_dict.get('status'):
-            states = tmp_dict['workflow_history'].values()
+            states = list(tmp_dict['workflow_history'].values())
             comment_status = states[0][-1]['review_state']
         try:
             del tmp_dict['__parent__']
@@ -119,7 +119,7 @@ class BaseGetItemView(BrowserView):
             try:
                 JSON = json.dumps(context_dict)
                 passed = True
-            except Exception, error:
+            except Exception as error:
                 if "serializable" in str(error):
                     key, context_dict = _clean_dict(context_dict, error)
                     logger.error(
@@ -215,50 +215,6 @@ class GetItemDocument(BaseGetItem):
         return get_json_object(self, context_dict)
 
 
-class GetItemTopic(BaseGetItem):
-
-    def convert_criterion(self, old_criterion):
-        pass
-
-    def __call__(self):
-        """
-        Topic
-        """
-        mt = TopicMigrator()
-        criterions_list = mt.__call__(self.context)
-        # check format in case of date values
-        for crit_dict in criterions_list:
-            values = crit_dict.get('v')
-            if not values:
-                continue
-            if isinstance(values, int):
-                continue
-            if not any([True for x in values if isinstance(x, DateTime)]):  # noqa
-                continue
-
-            new_values = []
-
-            for val in values:
-                new_values.append(val.asdatetime().isoformat())
-            if isinstance(values, tuple):
-                new_values = tuple(new_values)
-            crit_dict.update({'v': new_values})
-
-        sort_on = mt._collection_sort_on
-        sort_reversed = mt._collection_sort_reversed
-        context_dict = super(GetItemTopic, self).__call__()
-        context_dict.update({'query': criterions_list})
-        context_dict.update({'sort_on': sort_on})
-        context_dict.update({'sort_reversed': sort_reversed})
-
-        if not context_dict.get('itemCount'):
-            context_dict.update({'item_count': '30'})
-        else:
-            context_dict.update({
-                'item_count': context_dict.get('itemCount')})
-        return get_json_object(self, context_dict)
-
-
 class GetItemCollection(BaseGetItem):
 
     def __call__(self):
@@ -272,13 +228,13 @@ class GetItemCollection(BaseGetItem):
         for el in query:
             tmp_dict = {}
             for key in el.keys():
-                if not isinstance(el[key], basestring):
+                if not isinstance(el[key], six.string_types):
                     tmp_lst = []
                     for item in el[key]:
-                        tmp_lst.append(unicode(item))
-                    tmp_dict.update({unicode(key): tmp_lst})
+                        tmp_lst.append(six.text_type(item))
+                    tmp_dict.update({six.text_type(key): tmp_lst})
                 else:
-                    tmp_dict.update({unicode(key): unicode(el[key])})
+                    tmp_dict.update({six.text_type(key): six.text_type(el[key])})
             fixed_query.append(tmp_dict)
 
         context_dict.update({'query': fixed_query})

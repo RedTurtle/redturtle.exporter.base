@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from AccessControl.rolemanager import _string_hash
 from Acquisition import aq_base
 from DateTime import DateTime
 from plone import api
@@ -660,12 +661,15 @@ class Wrapper(dict):
     def get_permissions(self):
         """Permission of object (Security tab in ZMI)
         :keys: _permissions
-        This works well until Plone 51.
-        From Plone 52, permission_settings method returns a different list.
+        In this way works only for plone52
         """
         self["_permissions"] = {}
         if getattr(self.context, "permission_settings", False):
             roles = self.context.validRoles()
+            roles_b64 = [_string_hash(x) for x in roles]
+
+            roles = dict(zip(roles_b64, roles))
+
             ps = self.context.permission_settings()
             for perm in ps:
                 unchecked = 0
@@ -675,7 +679,8 @@ class Wrapper(dict):
                 for role in perm["roles"]:
                     if role["checked"]:
                         role_idx = role["name"].index("r") + 1
-                        role_name = roles[int(role["name"][role_idx:])]
+                        role_name_b64 = role["name"].split("role_")[1]
+                        role_name = roles[role_name_b64]
                         new_roles.append(role_name)
                 if unchecked or new_roles:
                     self["_permissions"][perm["name"]] = {
@@ -769,22 +774,6 @@ class Wrapper(dict):
         """Test, if a content item is a CMF only object.
         """
         context = self.context
-        try:
-            from Products.ATContentTypes.interface.interfaces import (
-                IATContentType,
-            )  # noqa
-
-            if self.providedBy(IATContentType, context):
-                return False
-        except Exception:
-            pass
-        try:
-            from Products.ATContentTypes.interfaces import IATContentType
-
-            if self.providedBy(IATContentType, context):
-                return False
-        except Exception:
-            pass
         try:
             from plone.dexterity.interfaces import IDexterityContent
 
