@@ -103,7 +103,7 @@ class Wrapper(dict):
         ctype = value.contentType
         size = value.getSize()
         dvalue = {
-            "data": base64.b64encode(data),
+            "data": base64.b64encode(data).decode("utf-8"),
             "size": size,
             "filename": value.filename or "",
             "content_type": ctype,
@@ -146,7 +146,7 @@ class Wrapper(dict):
 
                 if field_type in ("RichText",):
                     # TODO: content_type missing
-                    value = six.text_type(value.raw.decode("utf-8"))
+                    value = six.text_type(value.raw)
 
                 elif field_type in ("List", "Tuple") and field_value_type in (
                     "NamedImage",
