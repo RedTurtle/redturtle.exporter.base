@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 from .migration.topics import TopicMigrator
-from redturtle.exporter.base.browser.wrapper import Wrapper
 from DateTime import DateTime
 from plone import api
-from plone.app.discussion.interfaces import IConversation
 from plone.memoize.view import memoize
-from Products.CMFCore.interfaces import ISiteRoot
-from Products.Five.browser import BrowserView
 from Products.CMFCore.interfaces import IFolderish
+from Products.Five.browser import BrowserView
+from redturtle.exporter.base.browser.wrapper import Wrapper
+from redturtle.exporter.base.interfaces import ICustomDataExporter
+from zope.component import subscribers
 
 import base64
 import json
@@ -26,204 +26,108 @@ def _clean_dict(dct, error):
     raise ValueError("Could not clean up object")
 
 
-def get_json_object(self, context_dict):
-    passed = False
-    while not passed:
-        try:
-            JSON = json.dumps(context_dict)
-            passed = True
-        except Exception, error:
-            if 'serializable' in str(error):
-                key, context_dict = _clean_dict(context_dict, error)
-                logger.error(
-                    'Not serializable member {0} of {1} ignored'.format(
-                        key, repr(self)))
-                passed = False
-            else:
-                return ('ERROR: Unknown error serializing object: {0}'.format(
-                    str(error)))
-
-    self.request.response.setHeader('Content-Type', 'application/json')
-    return JSON
-
-
-def get_discussion_objects(self, context_dict):
-    conversation = IConversation(self.context)
-    comments = conversation.getComments()
-    comments = [comment for comment in comments]
-    tmp_lst = []
-    for item in comments:
-        tmp_dict = item.__dict__
-        if not tmp_dict.get('status'):
-            states = tmp_dict['workflow_history'].values()
-            comment_status = states[0][-1]['review_state']
-        try:
-            del tmp_dict['__parent__']
-            del tmp_dict['workflow_history']
-        except Exception:
-            pass
-        tmp_dict['modification_date'] = DateTime(
-            tmp_dict['modification_date']).asdatetime().isoformat()
-        tmp_dict['creation_date'] = DateTime(
-            tmp_dict['creation_date']).asdatetime().isoformat()
-        if not tmp_dict.get('status'):
-            tmp_dict.update({'status': comment_status})
-        tmp_lst.append(tmp_dict)
-    context_dict.update({'discussions': tmp_lst})
-
-
-def get_solr_extrafields(self, context_dict):
-    if not getattr(self.context, 'searchwords', None):
-        return
-    context_dict.update({'searchwords': self.context.searchwords.raw})
-
-
-def check_hierarchy_private_status(self, context_dict):
-    has_private_relatives = False
-    relatives = self.context.aq_chain
-    for item in relatives:
-        if ISiteRoot.providedBy(item):
-            # se è la root del sito esci
-            break
-        review_state = api.content.get_state(item, 'published')
-        if review_state and review_state != 'published':  # noqa
-            has_private_relatives = True
-            break
-    context_dict.update({'is_private': has_private_relatives})
-
-
-def get_list_of_container_type(self, context_dict):
-    fathers_type_list = []
-    relatives = self.context.aq_chain
-    for item in relatives:
-        if ISiteRoot.providedBy(item):
-            # se è la root del sito esci
-            break
-        fathers_type_list.append(item.portal_type)
-    context_dict.update({'fathers_type_list': fathers_type_list})
-
-
-def get_taxonomy_object(self, context_dict):
-    context_dict.update({'taxonomies': context_dict.get('siteAreas', None)})
-    if context_dict.get('siteAreas', None):
-        del context_dict['siteAreas']
-
-
-class BaseGetItemView(BrowserView):
+class GetItem(BrowserView):
 
     def __call__(self):
-        context_dict = Wrapper(self)
 
+        data = self.get_data()
+        return self.get_json_object(data)
+
+    def get_data(self):
+        context_dict = Wrapper(self.context)
+
+        # custom exporters
+        handlers = [
+            x
+            for x in subscribers(
+                (self.context, self.request), ICustomDataExporter
+            )
+        ]
+        for handler in sorted(handlers, key=lambda h: h.order):
+            context_dict.update(handler())
+        if context_dict.get('_defaultpage'):
+            context_dict.update({
+                'default_page': context_dict.get('_defaultpage')
+            })
+        return context_dict
+
+    def get_json_object(self, context_dict):
         passed = False
         while not passed:
             try:
                 JSON = json.dumps(context_dict)
                 passed = True
             except Exception, error:
-                if "serializable" in str(error):
+                if 'serializable' in str(error):
                     key, context_dict = _clean_dict(context_dict, error)
                     logger.error(
-                        'Not serializable member %s of %s ignored' % (
-                            key, repr(self)
-                        )
-                    )
+                        'Not serializable member {0} of {1} ignored'.format(
+                            key, repr(self)))
                     passed = False
                 else:
-                    return ('ERROR: Unknown error serializing object: {}'.format(error))  # noqa
-        self.REQUEST.response.setHeader("Content-type", "application/json")
+                    return ('ERROR: Unknown error serializing object: {0}'.format(
+                        str(error)))
+
+        self.request.response.setHeader('Content-Type', 'application/json')
         return JSON
 
 
-class BaseGetItem(BaseGetItemView):
+class GetItemLink(GetItem):
 
-    def __call__(self):
-
-        context_dict = Wrapper(self.context)
-
-        # funzioni comuni a tutti i get_item
-        get_discussion_objects(self, context_dict)
-        get_solr_extrafields(self, context_dict)
-        check_hierarchy_private_status(self, context_dict)
-        get_list_of_container_type(self, context_dict)
-        get_taxonomy_object(self, context_dict)
-
-        return context_dict
-
-
-class GetItem(BaseGetItem):
-
-    def __call__(self):
+    def get_data(self):
         """
-        Generic content-type
         """
-        context_dict = super(GetItem, self).__call__()
-        if context_dict.get('_defaultpage'):
-            context_dict.update({
-                'default_page': context_dict.get('_defaultpage')
-            })
-
-        return get_json_object(self, context_dict)
+        data = super(GetItemLink, self).get_data()
+        if not data.get('title'):
+            data['title'] = data.get('id')
+        return data
 
 
-class GetItemLink(BaseGetItem):
+class GetItemEvent(GetItem):
 
-    def __call__(self):
+    def get_data(self):
         """
-        Generic content-type
         """
-        context_dict = super(GetItemLink, self).__call__()
-        if not context_dict.get('title'):
-            context_dict['title'] = context_dict.get('id')
-
-        return get_json_object(self, context_dict)
-
-
-class GetItemEvent(BaseGetItem):
-
-    def __call__(self):
-        """
-        Event
-        """
-        context_dict = super(GetItemEvent, self).__call__()
-        context_dict.update({
-            'start': DateTime(context_dict.get('startDate')).asdatetime().isoformat(),  # noqa
-            'end': DateTime(context_dict.get('endDate')).asdatetime().isoformat(),  # noqa
-            'contact_name': context_dict.get('contactName'),
-            'contact_email': context_dict.get('contactEmail'),
-            'contact_phone': context_dict.get('contactPhone'),
-            'event_url': context_dict.get('eventUrl'),
+        data = super(GetItemEvent, self).__call__()
+        data.update({
+            'start': DateTime(data.get('startDate')).asdatetime().isoformat(),
+            'end': DateTime(data.get('endDate')).asdatetime().isoformat(),
+            'contact_name': data.get('contactName'),
+            'contact_email': data.get('contactEmail'),
+            'contact_phone': data.get('contactPhone'),
+            'event_url': data.get('eventUrl'),
         })
-        context_dict.pop('startDate', None)
-        context_dict.pop('endDate', None)
-        context_dict.pop('contactName', None)
-        context_dict.pop('contactEmail', None)
-        context_dict.pop('contactPhone', None)
-        context_dict.pop('eventUrl', None)
-        return get_json_object(self, context_dict)
+        data.pop('startDate', None)
+        data.pop('endDate', None)
+        data.pop('contactName', None)
+        data.pop('contactEmail', None)
+        data.pop('contactPhone', None)
+        data.pop('eventUrl', None)
+        data
 
 
-class GetItemDocument(BaseGetItem):
+class GetItemDocument(GetItem):
 
-    def __call__(self):
+    def get_data(self):
         """
-        Document
         """
-        context_dict = super(GetItemDocument, self).__call__()
-        context_dict.update({
+        data = super(GetItemDocument, self).get_data()
+        data.update({
             'table_of_contents': self.context.tableContents})
 
-        return get_json_object(self, context_dict)
+        return data
 
 
-class GetItemTopic(BaseGetItem):
+class GetItemTopic(GetItem):
 
     def convert_criterion(self, old_criterion):
         pass
 
-    def __call__(self):
+    def get_data(self):
         """
-        Topic
         """
+        data = super(GetItemTopic, self).get_data()
+
         mt = TopicMigrator()
         criterions_list = mt.__call__(self.context)
         # check format in case of date values
@@ -246,27 +150,26 @@ class GetItemTopic(BaseGetItem):
 
         sort_on = mt._collection_sort_on
         sort_reversed = mt._collection_sort_reversed
-        context_dict = super(GetItemTopic, self).__call__()
-        context_dict.update({'query': criterions_list})
-        context_dict.update({'sort_on': sort_on})
-        context_dict.update({'sort_reversed': sort_reversed})
 
-        if not context_dict.get('itemCount'):
-            context_dict.update({'item_count': '30'})
+        data.update({'query': criterions_list})
+        data.update({'sort_on': sort_on})
+        data.update({'sort_reversed': sort_reversed})
+
+        if not data.get('itemCount'):
+            data.update({'item_count': '30'})
         else:
-            context_dict.update({
-                'item_count': context_dict.get('itemCount')})
-        return get_json_object(self, context_dict)
+            data.update({
+                'item_count': data.get('itemCount')})
+        return data
 
 
-class GetItemCollection(BaseGetItem):
+class GetItemCollection(GetItem):
 
-    def __call__(self):
+    def get_data(self):
         """
-        Collection
         """
-        context_dict = super(GetItemCollection, self).__call__()
-        query = context_dict['query']
+        data = super(GetItemCollection, self).get_data()
+        query = data['query']
 
         fixed_query = []
         for el in query:
@@ -281,37 +184,37 @@ class GetItemCollection(BaseGetItem):
                     tmp_dict.update({unicode(key): unicode(el[key])})
             fixed_query.append(tmp_dict)
 
-        context_dict.update({'query': fixed_query})
-        context_dict['item_count'] = context_dict.get('limit', 30)
-        del context_dict['limit']
+        data.update({'query': fixed_query})
+        data['item_count'] = data.get('limit', 30)
+        del data['limit']
 
-        return get_json_object(self, context_dict)
+        return data
 
 
-class GetItemFile(BaseGetItem):
+class GetItemFile(GetItem):
 
-    def __call__(self):
+    def get_data(self):
         """
         Files from Plone 3 could have title not set.
         In this case, set it with the id
         """
-        context_dict = super(GetItemFile, self).__call__()
-        if not context_dict.get('title'):
-            context_dict['title'] = context_dict.get('id')
-        return get_json_object(self, context_dict)
+        data = super(GetItemFile, self).get_data()
+        if not data.get('title'):
+            data['title'] = data.get('id')
+        return data
 
 
-class GetItemImage(BaseGetItem):
+class GetItemImage(GetItem):
 
-    def __call__(self):
+    def get_data(self):
         """
         Images from Plone 3 could have title not set.
         In this case, set it with the id
         """
-        context_dict = super(GetItemImage, self).__call__()
-        if not context_dict.get('title'):
-            context_dict['title'] = context_dict.get('id')
-        return get_json_object(self, context_dict)
+        data = super(GetItemImage, self).get_data()
+        if not data.get('title'):
+            data['title'] = data.get('id')
+        return data
 
 
 class GetCatalogResults(object):

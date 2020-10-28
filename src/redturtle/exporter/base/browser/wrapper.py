@@ -1078,9 +1078,13 @@ class Wrapper(dict):
                 settings = IPortletAssignmentSettings(assignment)
                 if manager_name not in portlets:
                     portlets[manager_name] = []
+                title = getattr(assignment, "title", "") or getattr(
+                    assignment, "header", ""
+                )
                 portlets[manager_name].append(
                     {
                         "type": type_,
+                        "title": title,
                         "visible": settings.get("visible", True),
                         "assignment": {
                             name: getattr(assignment, name, None)
