@@ -5,7 +5,7 @@
 
   <subscriber factory=".discussions.DiscussionsExporter"
     provides="redturtle.exporter.base.interfaces.ICustomDataExporter"/>
-  <subscriber factory=".discussions.DiscussionsExporter"
+  <subscriber factory=".parents_types.ParentsTypesExporter"
     provides="redturtle.exporter.base.interfaces.ICustomDataExporter"/>
   <subscriber factory=".private_hierarchy.PrivateHierarchyExporter"
     provides="redturtle.exporter.base.interfaces.ICustomDataExporter"/>

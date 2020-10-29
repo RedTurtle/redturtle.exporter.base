@@ -32,8 +32,8 @@ class CollectiveGeoExporter(object):
         lng, lat = coordinates[1]
         return {
             "geo": {
-                "lat": lat,
-                "lng": lng,
+                "latitude": lat,
+                "longitude": lng,
                 "description": self.context.getLocation(),
             }
         }
