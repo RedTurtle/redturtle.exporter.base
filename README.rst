@@ -47,6 +47,32 @@ where **GetItem** class is::
             return get_json_object(self, context_dict)
 
 
+Additional data exporter
+------------------------
+
+You can add some additional data to exported json registering an adapter for ICustomDataExporter::
+
+    <subscriber factory=".my_data.ExtraDataExporter"
+                provides="redturtle.exporter.base.interfaces.ICustomDataExporter"/>
+
+
+and in python code you need to return a dictionary with needed informations::
+
+    @adapter(Interface, Interface)
+    @implementer(ICustomDataExporter)
+    class ExtraDataExporter(object):
+        order = 4  # set an execution order
+
+        def __init__(self, context, request):
+            self.context = context
+            self.request = request
+
+        def __call__(self):
+            """
+            """
+            return {'foo': 'bar'}
+
+
 Export users and groups
 -----------------------
 
