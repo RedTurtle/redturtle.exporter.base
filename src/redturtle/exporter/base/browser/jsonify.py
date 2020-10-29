@@ -88,7 +88,7 @@ class GetItemEvent(GetItem):
     def get_data(self):
         """
         """
-        data = super(GetItemEvent, self).__call__()
+        data = super(GetItemEvent, self).get_data()
         data.update({
             'start': DateTime(data.get('startDate')).asdatetime().isoformat(),
             'end': DateTime(data.get('endDate')).asdatetime().isoformat(),
