@@ -103,7 +103,7 @@ class GetItemEvent(GetItem):
         data.pop('contactEmail', None)
         data.pop('contactPhone', None)
         data.pop('eventUrl', None)
-        data
+        return data
 
 
 class GetItemDocument(GetItem):
