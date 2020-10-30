@@ -7,12 +7,15 @@ from plone.portlets.interfaces import IPortletAssignmentMapping
 from plone.portlets.interfaces import IPortletAssignmentSettings
 from plone.portlets.interfaces import IPortletManager
 from Products.CMFCore.utils import getToolByName
+from Products.CMFPlone.utils import safe_unicode
 from six.moves import range
 from zope.component import getUtilitiesFor
 from zope.component import queryMultiAdapter
 from zope.interface import providedBy
 
+
 import datetime
+import lxml
 import os
 import six
 
@@ -334,6 +337,8 @@ class Wrapper(dict):
                         value = self.decode(value)
 
                 if value and type_ in ["StringField", "TextField"]:
+                    if type_ == "TextField":
+                        value = self.fix_links(html=value)
                     try:
                         value = self.decode(value)
                     except AttributeError:
@@ -1093,3 +1098,28 @@ class Wrapper(dict):
                     }
                 )
         self["portlets"] = portlets
+
+    def fix_links(self, html):
+        root = lxml.html.fromstring(html)
+        for link in root.xpath("//a"):
+            href = link.get("href")
+            if "resolveuid" in href:
+                continue
+            if "internal-link" not in link.get("class"):
+                continue
+            portal = api.portal.get()
+            path = ""
+            if href.startswith(portal.absolute_url()):
+                path = href.replace(portal.absolute_url(), "")
+            elif "../" in href:
+                ups = href.count("../") + 1
+                path = "{}/{}".format(
+                    "/".join(self.context.getPhysicalPath()[:-ups]),
+                    href.replace("../", ""),
+                )
+            item = api.content.get(path)
+            if not item:
+                continue
+            href = "resolveuid/{}".format(IUUID(item))
+            link.set("href", href)
+        return safe_unicode(lxml.html.tostring(root))

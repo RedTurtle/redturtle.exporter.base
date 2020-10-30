@@ -4,7 +4,10 @@ Changelog
 1.2.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Add customizables additional data exporters as adapters.
+  [cekk]
+- Convert internal links in rich text fields from relative paths to resolveuid.
+  [cekk]
 
 
 1.2.1 (2020-10-09)
