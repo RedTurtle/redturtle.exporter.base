@@ -1102,10 +1102,10 @@ class Wrapper(dict):
     def fix_links(self, html):
         root = lxml.html.fromstring(html)
         for link in root.xpath("//a"):
-            href = link.get("href")
-            if "resolveuid" in href:
+            href = link.get("href", "")
+            if not href:
                 continue
-            if "internal-link" not in link.get("class"):
+            if "resolveuid" in href:
                 continue
             portal = api.portal.get()
             path = ""
