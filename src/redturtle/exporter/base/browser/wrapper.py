@@ -1100,6 +1100,8 @@ class Wrapper(dict):
         self["portlets"] = portlets
 
     def fix_links(self, html):
+        if not html:
+            return ""
         root = lxml.html.fromstring(html)
         for link in root.xpath("//a"):
             href = link.get("href", "")
