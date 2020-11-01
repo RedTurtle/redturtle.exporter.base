@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.2.2 (unreleased)
+1.2.2 (2020-11-01)
 ------------------
 
 - Add customizables additional data exporters as adapters.
