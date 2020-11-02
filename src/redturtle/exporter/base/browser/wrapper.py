@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from Acquisition import aq_base
+from HTMLParser import HTMLParser
 from DateTime import DateTime
 from plone import api
 from plone.app.portlets.interfaces import IPortletTypeInterface
@@ -337,7 +338,10 @@ class Wrapper(dict):
                         value = self.decode(value)
 
                 if value and type_ in ["StringField", "TextField"]:
-                    if type_ == "TextField":
+                    if (
+                        type_ == "TextField"
+                        and field.widget.__class__.__name__ == "RichWidget"  # noqa
+                    ):
                         value = self.fix_links(html=value)
                     try:
                         value = self.decode(value)
@@ -1122,6 +1126,11 @@ class Wrapper(dict):
             item = api.content.get(path)
             if not item:
                 continue
-            href = "resolveuid/{}".format(IUUID(item))
-            link.set("href", href)
-        return safe_unicode(lxml.html.tostring(root))
+            try:
+                href = "resolveuid/{}".format(IUUID(item))
+                link.set("href", href)
+            except TypeError:
+                continue
+        return HTMLParser.unescape.__func__(
+            HTMLParser, safe_unicode(lxml.html.tostring(root))
+        )
