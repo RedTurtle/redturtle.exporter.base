@@ -53,13 +53,17 @@ class CriterionConverter(object):
         except KeyError:
             logger.warn(
                 "Index {0} is no criterion index. Registry gives "
-                "KeyError: {1}. Try inspecting portal_atct...".format(index, key)
+                "KeyError: {1}. Try inspecting portal_atct...".format(
+                    index, key
+                )
             )
             try:
                 api.portal.get().portal_atct.getIndex(index)
             except KeyError:
                 logger.error(
-                    "Index {0} is no criterion index. Giveup, sorry.".format(index)
+                    "Index {0} is no criterion index. Giveup, sorry.".format(
+                        index
+                    )
                 )
                 return False
         return True
@@ -74,14 +78,18 @@ class CriterionConverter(object):
         except KeyError:
             logger.warn(
                 "Index {0} is no criterion index. Registry gives "
-                "KeyError: {1}. Try inspecting portal_atct...".format(index, key)
+                "KeyError: {1}. Try inspecting portal_atct...".format(
+                    index, key
+                )
             )
             try:
                 index_obj = api.portal.get().portal_atct.getIndex(index)
                 return index_obj.enabled
             except KeyError:
                 logger.error(
-                    "Index {0} is no criterion index. Giveup, sorry.".format(index)
+                    "Index {0} is no criterion index. Giveup, sorry.".format(
+                        index
+                    )
                 )
                 return False
         logger.warn("Index %s is not enabled as criterion index. ", index)
@@ -184,7 +192,9 @@ class CriterionConverter(object):
 
             # Get the operation method.
 
-            operation = self.get_valid_operation(registry, index, value, criterion)
+            operation = self.get_valid_operation(
+                registry, index, value, criterion
+            )
             if not operation:
                 logger.warning(INVALID_OPERATION % (operation, criterion))
                 # TODO: raise an Exception?
@@ -281,8 +291,9 @@ class ATDateCriteriaConverter(CriterionConverter):
             return
         if operation == "more":
             if value != 0:
-                new_operation = "{0}.operation.date." "largerThanRelativeDate".format(
-                    prefix
+                new_operation = (
+                    "{0}.operation.date."
+                    "largerThanRelativeDate".format(prefix)
                 )
                 add_row(new_operation, value)
                 return
@@ -292,8 +303,8 @@ class ATDateCriteriaConverter(CriterionConverter):
                 return
         if operation == "less":
             if value != 0:
-                new_operation = "{0}.operation.date." "lessThanRelativeDate".format(
-                    prefix
+                new_operation = (
+                    "{0}.operation.date." "lessThanRelativeDate".format(prefix)
                 )
                 add_row(new_operation, value)
                 return
@@ -340,7 +351,8 @@ class ATSelectionCriterionConverter(CriterionConverter):
             and index != "Subject"  # noqa
         ):
             logger.warn(
-                "Cannot handle selection operator 'and'. Using 'or'. " "%r", value
+                "Cannot handle selection operator 'and'. Using 'or'. " "%r",
+                value,
             )
 
         # Special handling for portal_type=Topic.
@@ -403,7 +415,8 @@ class ATBooleanCriterionConverter(CriterionConverter):
             code = "isFalse"
         else:
             logger.warn(
-                "Unknown value for boolean criterion. " "Falling back to True. %r",
+                "Unknown value for boolean criterion. "
+                "Falling back to True. %r",
                 value,
             )
             code = "isTrue"
@@ -425,7 +438,9 @@ class ATBooleanCriterionConverter(CriterionConverter):
                 continue
             self.is_index_enabled(registry, fieldname)
             # Get the operation method.
-            operation = self.get_valid_operation(registry, fieldname, value, criterion)
+            operation = self.get_valid_operation(
+                registry, fieldname, value, criterion
+            )
             if not operation:
                 logger.error(INVALID_OPERATION % (operation, criterion))
                 # TODO: raise an Exception?
@@ -482,7 +497,9 @@ class ATSimpleIntCriterionConverter(CriterionConverter):
         elif direction == "max":
             code = "lessThan"
         elif direction == "min:max":
-            logger.warn("min:max direction not supported for integers. %r", value)
+            logger.warn(
+                "min:max direction not supported for integers. %r", value
+            )
             return
         else:
             logger.warn("Unknown direction for integers. %r", value)
@@ -546,9 +563,9 @@ class TopicMigrator:
 
             converter = CONVERTERS.get(type_)
             if converter is None:
-                msg = "Unsupported criterion {0}".format(type_)
-                logger.error(msg)
-                raise ValueError(msg)
+                msg = "[SKIPPED] - Unsupported criterion {0}".format(type_)
+                logger.warning(msg)
+                continue
             converter(formquery, criterion, self.registry)
 
         logger.debug("New query for %s: %r", path, formquery)
