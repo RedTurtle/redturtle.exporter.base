@@ -338,10 +338,8 @@ class Wrapper(dict):
                         value = self.decode(value)
 
                 if value and type_ in ["StringField", "TextField"]:
-                    if (
-                        type_ == "TextField"
-                        and field.widget.__class__.__name__ == "RichWidget"  # noqa
-                    ):
+                    widget_class = field.widget.__class__.__name__
+                    if type_ == "TextField" and widget_class == "RichWidget":
                         value = self.fix_links(html=value)
                     try:
                         value = self.decode(value)
@@ -1106,7 +1104,7 @@ class Wrapper(dict):
     def fix_links(self, html):
         if not html:
             return ""
-        root = lxml.html.fromstring(html)
+        root = lxml.html.fromstring(html.decode("utf-8"))
         for link in root.xpath("//a"):
             href = link.get("href", "")
             if not href:
