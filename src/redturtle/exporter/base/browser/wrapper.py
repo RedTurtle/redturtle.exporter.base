@@ -13,7 +13,7 @@ from six.moves import range
 from zope.component import getUtilitiesFor
 from zope.component import queryMultiAdapter
 from zope.interface import providedBy
-
+from .migration.topics import TopicMigrator
 
 import datetime
 import lxml
@@ -477,6 +477,41 @@ class Wrapper(dict):
                 except AttributeError:
                     value = self._get_at_field_value(field)
                 self[six.text_type(fieldname)] = self.decode(str(value))
+
+        if self.context.portal_type == "Topic":
+            mt = TopicMigrator()
+            criterions_list = mt.__call__(self.context)
+            # check format in case of date values
+            for crit_dict in criterions_list:
+                values = crit_dict.get("v")
+                if not values:
+                    continue
+                if isinstance(values, int):
+                    continue
+                if not any(
+                    [True for x in values if isinstance(x, DateTime)]
+                ):  # noqa
+                    continue
+
+                new_values = []
+
+                for val in values:
+                    new_values.append(val.asdatetime().isoformat())
+                if isinstance(values, tuple):
+                    new_values = tuple(new_values)
+                crit_dict.update({"v": new_values})
+
+            sort_on = mt._collection_sort_on
+            sort_reversed = mt._collection_sort_reversed
+
+            self["query"] = criterions_list
+            self["sort_on"] = sort_on
+            self["sort_reversed"] = sort_reversed
+
+            if not self.get("itemCount"):
+                self["item_count"] = "30"
+            else:
+                self["item_count"] = data.get("itemCount")
 
     def get_references(self):
         """AT references.

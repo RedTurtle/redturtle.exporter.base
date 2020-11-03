@@ -555,7 +555,7 @@ class TopicMigrator:
         formquery = []
         for criterion in criteria:
             type_ = criterion.__class__.__name__
-            if type_ == "ATSortCriterion":
+            if type_ in ["ATSortCriterion", "FormSortCriterion"]:
                 # Sort order and direction are now stored in the Collection.
                 self._collection_sort_reversed = criterion.getReversed()
                 self._collection_sort_on = criterion.Field()
@@ -587,4 +587,18 @@ CONVERTERS = {
     "ATSimpleIntCriterion": ATSimpleIntCriterionConverter(),
     "ATSimpleStringCriterion": ATSimpleStringCriterionConverter(),
     "ATAllAreasCriterion": ATListCriterionConverter(),
+    "FormBooleanCriterion": ATBooleanCriterionConverter(),
+    "FormCurrentAuthorCriterion": ATCurrentAuthorCriterionConverter(),
+    "FormDateCriteria": ATDateCriteriaConverter(),
+    "FormDateRangeCriterion": ATDateRangeCriterionConverter(),
+    "FormListCriterion": ATListCriterionConverter(),
+    "FormPathCriterion": ATPathCriterionConverter(),
+    "FormPortalTypeCriterion": ATPortalTypeCriterionConverter(),
+    "FormPortalTypeCheckboxCriterion": ATPortalTypeCriterionConverter(),
+    "FormReferenceCriterion": ATReferenceCriterionConverter(),
+    "FormRelativePathCriterion": ATRelativePathCriterionConverter(),
+    "FormSelectionCriterion": ATSelectionCriterionConverter(),
+    "FormSimpleIntCriterion": ATSimpleIntCriterionConverter(),
+    "FormSimpleStringCriterion": ATSimpleStringCriterionConverter(),
+    "FormAllAreasCriterion": ATListCriterionConverter(),
 }

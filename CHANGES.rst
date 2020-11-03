@@ -4,7 +4,10 @@ Changelog
 1.2.3 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fix encoding in rich text fields converter.
+  [cekk]
+- Improve Topics exporter.
+  [cekk]
 
 
 1.2.2 (2020-11-01)
