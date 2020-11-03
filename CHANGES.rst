@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.2.3 (unreleased)
+1.2.3 (2020-11-03)
 ------------------
 
 - Fix encoding in rich text fields converter.
