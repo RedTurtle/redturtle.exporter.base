@@ -57,7 +57,7 @@ class GetItem(BrowserView):
             try:
                 JSON = json.dumps(context_dict)
                 passed = True
-            except Exception, error:
+            except Exception as error:
                 if 'serializable' in str(error):
                     key, context_dict = _clean_dict(context_dict, error)
                     logger.error(
