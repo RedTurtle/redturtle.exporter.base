@@ -4,7 +4,7 @@ from DateTime import DateTime
 from plone import api
 from plone.app.textfield.value import RichTextValue
 from plone.namedfile.file import NamedBlobImage
-from Products.ATContentTypes.interfaces.interfaces import IATContentType
+#from Products.ATContentTypes.interfaces.interfaces import IATContentType
 from Products.CMFPlone.interfaces import INonInstallable
 from zope.interface import implementer
 
@@ -165,9 +165,9 @@ def post_install(context):
 def set_text(item, text, ref=""):
     if ref:
         text = text.format(uid=ref)
-    if IATContentType.providedBy(item):
-        item.setText(text, mimetype="text/html")
-        return
+    # if IATContentType.providedBy(item):
+    #     item.setText(text, mimetype="text/html")
+    #     return
     # dx content
     item.text = RichTextValue(text, "text/html", "text/html")
 

@@ -41,9 +41,9 @@ class ExportGroups(BaseView):
         exported_groups = {"_acl_groups": dict()}
         for group in groups:
             # Loop over each group grabbing members
-            members = acl_users.source_groups._group_principal_map[
+            members = list(acl_users.source_groups._group_principal_map[
                 group
-            ].keys()
+            ].keys())
             roles = acl_users.getGroupByName(group)._roles
             group_info = {
                 'title': groups[group]['title'],

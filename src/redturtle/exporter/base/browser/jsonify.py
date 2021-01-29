@@ -12,6 +12,7 @@ from zope.component import subscribers
 import base64
 import json
 import logging
+import six
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +50,9 @@ class GetItem(BrowserView):
             context_dict.update({
                 'default_page': context_dict.get('_defaultpage')
             })
+
+        if context_dict.get('_datafield_image'):
+            context_dict['_datafield_image']['data'] = context_dict['_datafield_image']['data'].decode("utf-8")
         return context_dict
 
     def get_json_object(self, context_dict):
@@ -175,13 +179,13 @@ class GetItemCollection(GetItem):
         for el in query:
             tmp_dict = {}
             for key in el.keys():
-                if not isinstance(el[key], basestring):
+                if not isinstance(el[key], six.string_types):
                     tmp_lst = []
                     for item in el[key]:
-                        tmp_lst.append(unicode(item))
-                    tmp_dict.update({unicode(key): tmp_lst})
+                        tmp_lst.append(six.text_type(item))
+                    tmp_dict.update({six.text_type(key): tmp_lst})
                 else:
-                    tmp_dict.update({unicode(key): unicode(el[key])})
+                    tmp_dict.update({six.text_type(key): six.text_type(el[key])})
             fixed_query.append(tmp_dict)
 
         data.update({'query': fixed_query})

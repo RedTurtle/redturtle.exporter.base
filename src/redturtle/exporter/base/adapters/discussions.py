@@ -26,7 +26,7 @@ class DiscussionsExporter(object):
         for item in comments:
             tmp_dict = item.__dict__
             if not tmp_dict.get("status"):
-                states = tmp_dict["workflow_history"].values()
+                states = list(tmp_dict["workflow_history"].values())
                 comment_status = states[0][-1]["review_state"]
             try:
                 del tmp_dict["__parent__"]
