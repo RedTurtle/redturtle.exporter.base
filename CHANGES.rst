@@ -4,8 +4,8 @@ Changelog
 1.2.4 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Python 3 and Plone52 support.
+  [cekk, daniele]
 
 1.2.3 (2020-11-03)
 ------------------

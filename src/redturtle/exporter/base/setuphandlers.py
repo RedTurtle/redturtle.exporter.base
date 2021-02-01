@@ -4,9 +4,15 @@ from DateTime import DateTime
 from plone import api
 from plone.app.textfield.value import RichTextValue
 from plone.namedfile.file import NamedBlobImage
-#from Products.ATContentTypes.interfaces.interfaces import IATContentType
 from Products.CMFPlone.interfaces import INonInstallable
 from zope.interface import implementer
+
+try:
+    from Products.ATContentTypes.interfaces.interfaces import IATContentType
+
+    HAS_ARCHETYPES = True
+except ImportError:
+    HAS_ARCHETYPES = False
 
 import logging
 import os
@@ -62,9 +68,15 @@ def post_install(context):
     portal = api.portal.get()
 
     # first of all create some contents
-    folder1 = api.content.create(type="Folder", title="Folder foo", container=portal)
-    folder2 = api.content.create(type="Folder", title="Folder bar", container=portal)
-    folder3 = api.content.create(type="Folder", title="Folder baz", container=folder2)
+    folder1 = api.content.create(
+        type="Folder", title="Folder foo", container=portal
+    )
+    folder2 = api.content.create(
+        type="Folder", title="Folder bar", container=portal
+    )
+    folder3 = api.content.create(
+        type="Folder", title="Folder baz", container=folder2
+    )
 
     doc = api.content.create(
         type="Document",
@@ -123,8 +135,12 @@ def post_install(context):
         ],
     )
 
-    image = api.content.create(type="Image", title="example image", container=folder3)
-    file_obj = api.content.create(type="File", title="example file", container=folder3)
+    image = api.content.create(
+        type="Image", title="example image", container=folder3
+    )
+    file_obj = api.content.create(
+        type="File", title="example file", container=folder3
+    )
 
     # Now let's add some text and files
     set_text(item=doc, text=SIMPLE_TEXT)
@@ -149,7 +165,9 @@ def post_install(context):
         username="john",
         email="jdoe@plone.org",
         properties=dict(
-            fullname="John Doe", description="foo", home_page="http://www.plone.org"
+            fullname="John Doe",
+            description="foo",
+            home_page="http://www.plone.org",
         ),
     )
     api.user.create(username="bob", email="bob@plone.org")
@@ -165,11 +183,11 @@ def post_install(context):
 def set_text(item, text, ref=""):
     if ref:
         text = text.format(uid=ref)
-    # if IATContentType.providedBy(item):
-    #     item.setText(text, mimetype="text/html")
-    #     return
-    # dx content
-    item.text = RichTextValue(text, "text/html", "text/html")
+    if HAS_ARCHETYPES:
+        if IATContentType.providedBy(item):
+            item.setText(text, mimetype="text/html")
+    else:
+        item.text = RichTextValue(text, "text/html", "text/html")
 
 
 def set_image(item):
@@ -180,7 +198,9 @@ def set_image(item):
 
 
 def set_file(item):
-    path = os.path.join(package_home(globals()), "example_files", "example.pdf")
+    path = os.path.join(
+        package_home(globals()), "example_files", "example.pdf"
+    )
     with open(path, "rb") as fd:
         file_data = fd.read()
     item.file = NamedBlobImage(data=file_data, filename=u"example.pdf")

@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 from Acquisition import aq_base
-from lxml import etree
-#from c import HTMLParser
 from DateTime import DateTime
 from plone import api
 from plone.app.portlets.interfaces import IPortletTypeInterface
@@ -21,6 +19,12 @@ import datetime
 import lxml
 import os
 import six
+
+
+if six.PY2:
+    from HTMLParser import HTMLParser
+else:
+    from lxml.etree import HTMLParser
 
 
 try:
@@ -108,7 +112,7 @@ class Wrapper(dict):
         ctype = value.contentType
         size = value.getSize()
         dvalue = {
-            "data": base64.b64encode(data),
+            "data": base64.b64encode(data).decode("utf-8"),
             "size": size,
             "filename": value.filename or "",
             "content_type": ctype,
@@ -188,7 +192,9 @@ class Wrapper(dict):
                     for item in value:
                         try:
                             # Simply export the path to the relation. Postprocessing when importing is needed.
-                            _value.append(item.to_path)
+                            ref_obj = item.to_object
+                            if ref_obj:
+                                _value.append(ref_obj.UID())
                         except ValueError:
                             continue
                     value = _value
@@ -718,8 +724,10 @@ class Wrapper(dict):
                 new_roles = []
                 for role in perm["roles"]:
                     if role["checked"]:
-                        role_hash = role["name"].split('role_')[1]
-                        role_name = [x for x in roles if _string_hash(x) == role_hash]
+                        role_hash = role["name"].split("role_")[1]
+                        role_name = [
+                            x for x in roles if _string_hash(x) == role_hash
+                        ]
                         new_roles.append(role_name[0])
                 if unchecked or new_roles:
                     self["_permissions"][perm["name"]] = {
@@ -1166,7 +1174,6 @@ class Wrapper(dict):
                 link.set("href", href)
             except TypeError:
                 continue
-        parser = etree.HTMLParser()
         return HTMLParser.unescape.__func__(
             HTMLParser, safe_unicode(lxml.html.tostring(root))
         )
