@@ -13,7 +13,6 @@ from zope.component import getUtilitiesFor
 from zope.component import queryMultiAdapter
 from zope.interface import providedBy
 from .migration.topics import TopicMigrator
-from AccessControl.rolemanager import _string_hash
 
 import datetime
 import lxml
@@ -25,6 +24,7 @@ if six.PY2:
     from HTMLParser import HTMLParser
 else:
     from lxml.etree import HTMLParser
+    from AccessControl.rolemanager import _string_hash
 
 
 try:
@@ -724,11 +724,18 @@ class Wrapper(dict):
                 new_roles = []
                 for role in perm["roles"]:
                     if role["checked"]:
-                        role_hash = role["name"].split("role_")[1]
-                        role_name = [
-                            x for x in roles if _string_hash(x) == role_hash
-                        ]
-                        new_roles.append(role_name[0])
+                        if six.PY2:
+                            role_idx = role["name"].index("r") + 1
+                            role_name = roles[int(role["name"][role_idx:])]
+                            new_roles.append(role_name)
+                        else:
+                            role_hash = role["name"].split("role_")[1]
+                            role_name = [
+                                x
+                                for x in roles
+                                if _string_hash(x) == role_hash
+                            ]
+                            new_roles.append(role_name[0])
                 if unchecked or new_roles:
                     self["_permissions"][perm["name"]] = {
                         "acquire": not unchecked,
