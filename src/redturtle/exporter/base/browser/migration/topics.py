@@ -389,7 +389,7 @@ class ATPathCriterionConverter(CriterionConverter):
                 raw[index] = path + "::1"
         else:
             raw = (
-                map(lambda x: api.content.get(UID=x).absolute_url_path(), raw)
+                [api.content.get(UID=x).absolute_url_path() for x in raw]
                 if raw
                 else []
             )

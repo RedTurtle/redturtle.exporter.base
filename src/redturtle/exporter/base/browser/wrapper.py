@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from Acquisition import aq_base
-from HTMLParser import HTMLParser
 from DateTime import DateTime
 from plone import api
 from plone.app.portlets.interfaces import IPortletTypeInterface
@@ -19,6 +18,13 @@ import datetime
 import lxml
 import os
 import six
+
+
+if six.PY2:
+    from HTMLParser import HTMLParser
+else:
+    from lxml.etree import HTMLParser
+    from AccessControl.rolemanager import _string_hash
 
 
 try:
@@ -106,7 +112,7 @@ class Wrapper(dict):
         ctype = value.contentType
         size = value.getSize()
         dvalue = {
-            "data": base64.b64encode(data),
+            "data": base64.b64encode(data).decode("utf-8"),
             "size": size,
             "filename": value.filename or "",
             "content_type": ctype,
@@ -149,7 +155,7 @@ class Wrapper(dict):
 
                 if field_type in ("RichText",):
                     # TODO: content_type missing
-                    value = six.text_type(value.raw.decode("utf-8"))
+                    value = six.text_type(value.raw)
 
                 elif field_type in ("List", "Tuple") and field_value_type in (
                     "NamedImage",
@@ -186,7 +192,9 @@ class Wrapper(dict):
                     for item in value:
                         try:
                             # Simply export the path to the relation. Postprocessing when importing is needed.
-                            _value.append(item.to_path)
+                            ref_obj = item.to_object
+                            if ref_obj:
+                                _value.append(ref_obj.UID())
                         except ValueError:
                             continue
                     value = _value
@@ -716,9 +724,18 @@ class Wrapper(dict):
                 new_roles = []
                 for role in perm["roles"]:
                     if role["checked"]:
-                        role_idx = role["name"].index("r") + 1
-                        role_name = roles[int(role["name"][role_idx:])]
-                        new_roles.append(role_name)
+                        if six.PY2:
+                            role_idx = role["name"].index("r") + 1
+                            role_name = roles[int(role["name"][role_idx:])]
+                            new_roles.append(role_name)
+                        else:
+                            role_hash = role["name"].split("role_")[1]
+                            role_name = [
+                                x
+                                for x in roles
+                                if _string_hash(x) == role_hash
+                            ]
+                            new_roles.append(role_name[0])
                 if unchecked or new_roles:
                     self["_permissions"][perm["name"]] = {
                         "acquire": not unchecked,
