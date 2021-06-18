@@ -295,21 +295,20 @@ class GetCatalogResults(object):
     def __call__(self):
 
         self.items = []
-        query = self.request.form.get("catalog_query", {})
-        if query:
-            query = eval(base64.b64decode(query), {"__builtins__": None}, {})
-        query.update({"sort_on": "getObjPositionInParent"})
-
         self.request.response.setHeader("Content-Type", "application/json")
 
         self.items = []
 
-        root = api.portal.get()
-        tree = {"children": []}
-        tree["children"].extend(self.explain_tree(root))
+        if "path" in self.query.keys():
+            self.items = [x.getPath() for x in self.brains]
+        else:
+            root = api.portal.get()
+            tree = {"children": []}
+            tree["children"].extend(self.explain_tree(root))
 
-        if tree.get("path", None):
-            self.items.append(tree["path"])
-        self.flatten(tree["children"])
+            if tree.get("path", None):
+                self.items.append(tree["path"])
+            self.flatten(tree["children"])
+
         item_paths = self.items
         return json.dumps(item_paths)

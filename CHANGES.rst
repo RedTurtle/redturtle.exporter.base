@@ -4,7 +4,9 @@ Changelog
 1.3.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Added path option to query.
+- unpinned version of plone.api.
+  [eikichi18]
 
 
 1.3.0 (2021-02-01)

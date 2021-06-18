@@ -42,7 +42,7 @@ setup(
     zip_safe=False,
     install_requires=[
         # -*- Extra requirements: -*-
-        'plone.api>=1.10.0',
+        'plone.api',
         'Products.GenericSetup',
         'setuptools',
     ],
