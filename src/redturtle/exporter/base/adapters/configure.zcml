@@ -11,5 +11,7 @@
     provides="redturtle.exporter.base.interfaces.ICustomDataExporter"/>
   <subscriber factory=".collective_geo.CollectiveGeoExporter"
     provides="redturtle.exporter.base.interfaces.ICustomDataExporter"/>
-    
+  <subscriber factory=".skip_nci.SkipNCIExporter"
+    provides="redturtle.exporter.base.interfaces.ICustomDataExporter"/>
+
 </configure>
