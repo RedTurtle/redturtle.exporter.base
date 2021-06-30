@@ -25,7 +25,7 @@ class SkipNCIExporter(object):
             if ISiteRoot.providedBy(aq_item):
                 # se è la root del sito esci
                 break
-            if "-aa-" in list(aq_item.subject):
+            if "-aa-" in list(aq_item.Subject()):
                 skip_me = True
                 break
 
