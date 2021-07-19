@@ -19,9 +19,9 @@ class CollectiveGeoExporter(object):
         """
         try:
             view = self.context.restrictedTraverse("@@geoview")
+            coordinates = view.getCoordinates()
         except AttributeError:
             return {}
-        coordinates = view.getCoordinates()
         if (
             not coordinates
             or len(coordinates) != 2  # noqa

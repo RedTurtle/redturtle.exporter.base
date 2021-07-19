@@ -519,7 +519,7 @@ class Wrapper(dict):
             if not self.get("itemCount"):
                 self["item_count"] = "30"
             else:
-                self["item_count"] = data.get("itemCount")
+                self["item_count"] = self.get("itemCount")
 
     def get_references(self):
         """AT references.
