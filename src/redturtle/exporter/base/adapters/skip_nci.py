@@ -6,6 +6,8 @@ from zope.component import adapter
 from zope.interface import implementer
 from zope.interface import Interface
 
+# from acquisition import
+
 
 @adapter(Interface, Interface)
 @implementer(ICustomDataExporter)
@@ -21,6 +23,9 @@ class SkipNCIExporter(object):
         """
         skip_me = False
         aq_chain = self.context.aq_chain
+        import pdb
+
+        pdb.set_trace()
         for aq_item in aq_chain:
             if ISiteRoot.providedBy(aq_item):
                 # se è la root del sito esci
